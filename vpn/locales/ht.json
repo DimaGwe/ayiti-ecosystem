@@ -1,0 +1,141 @@
+{
+  "nav": {
+    "home": "Lakay",
+    "pricing": "Pri",
+    "dashboard": "Tablo"
+  },
+  "hero": {
+    "title": "Pwoteje Koneksyon Ou",
+    "subtitle": "VPN rapid, prive ak WireGuard. Pwoteje done ou epi aksede entènèt lib.",
+    "feature1": "Pwotokòl WireGuard",
+    "feature2": "Pa Gen Jounal",
+    "feature3": "Peye ak Kredi"
+  },
+  "btn": {
+    "login": "Konekte",
+    "getStarted": "Kòmanse",
+    "learnMore": "Aprann Plis",
+    "subscribe": "Abòne",
+    "download": "Telechaje",
+    "downloadConfig": "Telechaje .conf",
+    "addDevice": "+ Ajoute Aparèy",
+    "cancel": "Anile",
+    "startFree": "Kòmanse Gratis",
+    "signInGoogle": "Konekte ak Google"
+  },
+  "features": {
+    "title": "Poukisa Chwazi Pwotek VPN?",
+    "speed": {
+      "title": "Rapid Anpil",
+      "desc": "Pwotokòl modèn WireGuard bay vitès eksepsyonèl ak mwens reta."
+    },
+    "security": {
+      "title": "Sekirite Militè",
+      "desc": "Kriptaj dènye teknoloji pwoteje done ou kont moun k ap gade."
+    },
+    "privacy": {
+      "title": "Konfidansyalite Total",
+      "desc": "Politik zewo jounal asire aktivite ou sou entènèt rete prive."
+    }
+  },
+  "pricing": {
+    "title": "Pri Senp, Transparan",
+    "subtitle": "Peye ak kredi ekosistèm. Fè kredi lè w ap aprann, kontribye, ak patisipe!",
+    "pageTitle": "Chwazi Plan Ou",
+    "pageSubtitle": "Peye ak kredi ekosistèm. Fè kredi lè w ap aprann, kontribye, ak patisipe!",
+    "yourBalance": "Balans Ou:",
+    "compareTitle": "Konpare Karakteristik",
+    "earnTitle": "Kijan Pou Fè Kredi",
+    "earnSubtitle": "Kredi se lajan pataje atravè Ekosistèm Ayiti. Men kijan ou ka fè yo:"
+  },
+  "earn": {
+    "learn": "Aprann",
+    "learnDesc": "Konplete kou ak pase egzamen sou Akademi Ayiti",
+    "play": "Jwe",
+    "playDesc": "Reponn kesyon trivia sou Trivia Ayiti",
+    "solar": "Solè",
+    "solarDesc": "Jenere enèji solè ak Solè Ayiti",
+    "recycle": "Resikle",
+    "recycleDesc": "Fè rekonpans lè w resikle ak Vèt Ayiti"
+  },
+  "table": {
+    "feature": "Karakteristik",
+    "devices": "Aparèy",
+    "data": "Done Chak Mwa",
+    "speed": "Vitès",
+    "dedicatedIp": "IP Dedye",
+    "support": "Sipò Priyorite"
+  },
+  "faq": {
+    "title": "Kesyon Yo Poze Souvan",
+    "q1": "Kisa WireGuard ye?",
+    "a1": "WireGuard se yon pwotokòl VPN modèn, rapid, ak sekirize. Li itilize kriptografi dènye teknoloji epi li fèt pou li pi senp ak pi efikas pase ansyen pwotokòl tankou OpenVPN.",
+    "q2": "Kijan mwen ka jwenn kredi?",
+    "a2": "Ou fè kredi atravè Ekosistèm Ayiti. Konplete leson, reponn kesyon trivia, jenere enèji solè, oswa resikle materyèl pou fè kredi ou ka depanse sou abònman VPN.",
+    "q3": "Èske mwen ka itilize VPN sou plizyè aparèy?",
+    "a3": "Wi! Selon plan ou, ou ka konekte plizyè aparèy an menm tan. Chak aparèy jwenn pwòp fichye konfigirasyon pa l ou enpòte nan aplikasyon WireGuard la.",
+    "q4": "Kisa k ap pase lè abònman mwen ekspire?",
+    "a4": "Si renouvèlman otomatik aktive epi ou gen ase kredi, abònman ou ap renouvle otomatikman. Sinon, aksè VPN ou ap kanpe jiskaske ou renouvle manyèlman."
+  },
+  "dashboard": {
+    "loginRequired": "Koneksyon Obligatwa",
+    "loginMessage": "Tanpri konekte pou aksede tablo VPN ou.",
+    "subscription": "Abònman",
+    "devices": "Aparèy Ou Yo",
+    "noDevices": "Pa gen aparèy konfigire ankò. Ajoute premye aparèy ou pou kòmanse!",
+    "usage": "Estatistik Itilizasyon"
+  },
+  "stats": {
+    "download": "Telechaje",
+    "upload": "Voye",
+    "devices": "Aparèy",
+    "daysLeft": "Jou Ki Rete"
+  },
+  "modal": {
+    "addDevice": "Ajoute Nouvo Aparèy",
+    "downloadConfig": "Telechaje Konfigirasyon",
+    "downloadInstructions": "Telechaje fichye konfigirasyon an epi enpòte li nan kliyan WireGuard ou.",
+    "needHelp": "Bezwen aplikasyon WireGuard?"
+  },
+  "form": {
+    "deviceName": "Non Aparèy"
+  },
+  "download": {
+    "title": "Telechaje WireGuard",
+    "subtitle": "Telechaje kliyan ofisyèl WireGuard pou aparèy ou, apresa enpòte fichye konfigirasyon ou.",
+    "setupTitle": "Enstriksyon Enstalasyon"
+  },
+  "setup": {
+    "step1": {
+      "title": "Telechaje WireGuard",
+      "desc": "Enstale aplikasyon WireGuard pou aparèy ou nan lyen ki anwo yo."
+    },
+    "step2": {
+      "title": "Jwenn Konfigirasyon Ou",
+      "desc": "Ale nan Tablo ou, ajoute yon aparèy, epi telechaje fichye konfigirasyon an."
+    },
+    "step3": {
+      "title": "Enpòte Konfigirasyon",
+      "desc": "Ouvri WireGuard, klike \"Import tunnel(s) from file\" epi chwazi fichye .conf ou telechaje a."
+    },
+    "step4": {
+      "title": "Konekte!",
+      "desc": "Klike \"Activate\" pou konekte ak VPN la. Koneksyon ou sekirize kounye a!"
+    }
+  },
+  "cta": {
+    "title": "Prè Pou Pwoteje Vi Prive Ou?",
+    "subtitle": "Rantre nan dè milye itilizatè ki fè konfyans Pwotek VPN pou kenbe koneksyon yo sekirize."
+  },
+  "footer": {
+    "privacy": "Politik Konfidansyalite",
+    "terms": "Kondisyon Sèvis",
+    "support": "Sipò"
+  },
+  "plans": {
+    "free": "Gratis",
+    "basic": "Debaz",
+    "premium": "Premyòm",
+    "pro": "Pwofesyonèl"
+  }
+}

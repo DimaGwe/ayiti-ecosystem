@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Ayiti VPN (Pwotek)</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Pwotek <span class="text-gradient">VPN</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/" data-i18n="nav.home">Home</a></li>
+        <li><a href="/customer/pricing.html" data-i18n="nav.pricing">Pricing</a></li>
+        <li><a href="/customer/dashboard.html" class="active" data-i18n="nav.dashboard">Dashboard</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="ht">HT</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+        <div id="userArea">
+          <a href="/auth/google" class="btn btn-primary" data-i18n="btn.login">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container" style="padding: 2rem 1.5rem;">
+    <!-- Not Logged In State -->
+    <div id="notLoggedIn" class="card text-center" style="max-width: 500px; margin: 4rem auto;">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-muted); margin-bottom: 1rem;">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <h2 data-i18n="dashboard.loginRequired">Sign In Required</h2>
+      <p style="color: var(--text-secondary);" data-i18n="dashboard.loginMessage">Please sign in to access your VPN dashboard.</p>
+      <a href="/auth/google" class="btn btn-primary btn-lg mt-lg" data-i18n="btn.signInGoogle">Sign in with Google</a>
+    </div>
+
+    <!-- Dashboard Content (shown when logged in) -->
+    <div id="dashboardContent" class="hidden">
+      <!-- Subscription Status -->
+      <div class="card mb-lg">
+        <div class="card-header">
+          <h2 class="card-title" data-i18n="dashboard.subscription">Subscription</h2>
+          <div id="subscriptionStatus"></div>
+        </div>
+        <div id="subscriptionDetails">
+          <!-- Loaded via JavaScript -->
+        </div>
+      </div>
+
+      <!-- Devices Section -->
+      <div class="card mb-lg">
+        <div class="card-header">
+          <h2 class="card-title" data-i18n="dashboard.devices">Your Devices</h2>
+          <button class="btn btn-primary" id="addDeviceBtn" data-i18n="btn.addDevice">+ Add Device</button>
+        </div>
+
+        <div id="devicesList">
+          <!-- Devices loaded via JavaScript -->
+        </div>
+
+        <div id="noDevices" class="text-center hidden" style="padding: 2rem;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-muted); margin-bottom: 1rem;">
+            <rect x="5" y="2" width="14" height="20" rx="2"/>
+            <path d="M12 18h.01"/>
+          </svg>
+          <p style="color: var(--text-muted);" data-i18n="dashboard.noDevices">No devices configured yet. Add your first device to get started!</p>
+        </div>
+      </div>
+
+      <!-- Usage Stats -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title" data-i18n="dashboard.usage">Usage Statistics</h2>
+        </div>
+        <div class="stats-grid" id="usageStats">
+          <div class="stat-card">
+            <div class="stat-value" id="totalDownload">0 B</div>
+            <div class="stat-label" data-i18n="stats.download">Downloaded</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalUpload">0 B</div>
+            <div class="stat-label" data-i18n="stats.upload">Uploaded</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="deviceCount">0</div>
+            <div class="stat-label" data-i18n="stats.devices">Devices</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="daysRemaining">-</div>
+            <div class="stat-label" data-i18n="stats.daysLeft">Days Remaining</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Device Modal -->
+  <div class="modal-overlay" id="addDeviceModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 data-i18n="modal.addDevice">Add New Device</h3>
+        <button class="modal-close" onclick="closeModal('addDeviceModal')">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <form id="addDeviceForm">
+        <div class="form-group">
+          <label class="form-label" for="deviceName" data-i18n="form.deviceName">Device Name</label>
+          <input type="text" id="deviceName" class="form-input" placeholder="e.g., My Laptop, iPhone, etc." required>
+        </div>
+        <div class="flex gap-md" style="justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addDeviceModal')" data-i18n="btn.cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btn.addDevice">Add Device</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Download Config Modal -->
+  <div class="modal-overlay" id="downloadModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 data-i18n="modal.downloadConfig">Download Configuration</h3>
+        <button class="modal-close" onclick="closeModal('downloadModal')">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="text-center">
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary);" data-i18n="modal.downloadInstructions">
+          Download the configuration file and import it into your WireGuard client.
+        </p>
+        <div class="flex gap-md" style="justify-content: center;">
+          <a id="downloadConfigLink" class="btn btn-primary btn-lg" download>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            </svg>
+            <span data-i18n="btn.downloadConfig">Download .conf</span>
+          </a>
+        </div>
+        <p style="margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);" data-i18n="modal.needHelp">
+          Need the WireGuard app? <a href="https://www.wireguard.com/install/" target="_blank">Download here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p style="color: var(--text-muted);">&copy; 2024 Ayiti Ecosystem. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="#" data-i18n="footer.privacy">Privacy Policy</a>
+        <a href="#" data-i18n="footer.terms">Terms of Service</a>
+        <a href="#" data-i18n="footer.support">Support</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/i18n.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let currentUser = null;
+    let subscription = null;
+
+    // Initialize dashboard
+    async function initDashboard() {
+      await checkAuth();
+      if (currentUser) {
+        await loadSubscription();
+        await loadDevices();
+      }
+    }
+
+    // Check authentication
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+
+        if (data.success && data.user) {
+          currentUser = data.user;
+          document.getElementById('notLoggedIn').classList.add('hidden');
+          document.getElementById('dashboardContent').classList.remove('hidden');
+          updateUserArea(data.user);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+    }
+
+    // Load subscription details
+    async function loadSubscription() {
+      try {
+        const response = await fetch('/api/subscription');
+        const data = await response.json();
+
+        const statusEl = document.getElementById('subscriptionStatus');
+        const detailsEl = document.getElementById('subscriptionDetails');
+
+        if (data.success && data.subscription) {
+          subscription = data.subscription;
+          statusEl.innerHTML = `<span class="status-badge enabled">${data.subscription.status}</span>`;
+          detailsEl.innerHTML = `
+            <div class="flex-between" style="flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <h3 style="margin-bottom: 0.25rem;">${data.subscription.plan.name}</h3>
+                <p style="color: var(--text-muted); margin: 0;">
+                  ${data.subscription.clientCount}/${data.subscription.plan.deviceLimit} devices used
+                </p>
+              </div>
+              <div style="text-align: right;">
+                <p style="margin: 0; color: var(--text-secondary);">Expires: ${new Date(data.subscription.expiresAt).toLocaleDateString()}</p>
+                <p style="margin: 0; color: var(--accent-purple); font-weight: 600;">${data.subscription.daysRemaining} days remaining</p>
+              </div>
+              <div class="flex gap-sm">
+                <button class="btn btn-secondary" onclick="renewSubscription()" ${data.subscription.plan.creditsMonthly === 0 ? 'disabled' : ''}>Renew</button>
+                <button class="btn btn-outline" onclick="cancelSubscription()" ${!data.subscription.autoRenew ? 'disabled' : ''}>
+                  ${data.subscription.autoRenew ? 'Cancel Auto-Renew' : 'Auto-Renew Off'}
+                </button>
+              </div>
+            </div>
+          `;
+
+          document.getElementById('daysRemaining').textContent = data.subscription.daysRemaining;
+          document.getElementById('addDeviceBtn').disabled = !data.subscription.canAddDevice;
+        } else {
+          statusEl.innerHTML = `<span class="status-badge disabled">No Subscription</span>`;
+          detailsEl.innerHTML = `
+            <div class="text-center" style="padding: 1rem;">
+              <p style="color: var(--text-muted); margin-bottom: 1rem;">You don't have an active subscription.</p>
+              <a href="/customer/pricing.html" class="btn btn-primary">View Plans</a>
+            </div>
+          `;
+          document.getElementById('addDeviceBtn').disabled = true;
+        }
+      } catch (error) {
+        console.error('Failed to load subscription:', error);
+      }
+    }
+
+    // Load user's devices
+    async function loadDevices() {
+      try {
+        const response = await fetch('/api/clients');
+        const data = await response.json();
+
+        const listEl = document.getElementById('devicesList');
+        const noDevicesEl = document.getElementById('noDevices');
+
+        if (data.success && data.clients.length > 0) {
+          noDevicesEl.classList.add('hidden');
+          listEl.innerHTML = data.clients.map(client => `
+            <div class="device-card" style="margin-bottom: 1rem;">
+              <div class="device-info">
+                <div class="device-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="5" y="2" width="14" height="20" rx="2"/>
+                    <path d="M12 18h.01"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="device-name">${client.name}</div>
+                  <div class="device-ip">${client.ipAddress}</div>
+                </div>
+              </div>
+              <div class="device-stats">
+                <span title="Downloaded">↓ ${client.bytesReceivedFormatted}</span>
+                <span title="Uploaded">↑ ${client.bytesSentFormatted}</span>
+              </div>
+              <div class="flex gap-sm">
+                <span class="status-badge ${client.status}">${client.status}</span>
+              </div>
+              <div class="device-actions">
+                <button class="btn btn-sm btn-primary" onclick="downloadConfig(${client.id}, '${client.name}')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                  </svg>
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="toggleDeviceStatus(${client.id}, '${client.status}')">
+                  ${client.status === 'enabled' ? 'Pause' : 'Enable'}
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteDevice(${client.id})">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          `).join('');
+
+          // Update stats
+          const totalDown = data.clients.reduce((sum, c) => sum + (parseInt(c.bytesReceived) || 0), 0);
+          const totalUp = data.clients.reduce((sum, c) => sum + (parseInt(c.bytesSent) || 0), 0);
+          document.getElementById('totalDownload').textContent = formatBytes(totalDown);
+          document.getElementById('totalUpload').textContent = formatBytes(totalUp);
+          document.getElementById('deviceCount').textContent = data.clients.length;
+        } else {
+          listEl.innerHTML = '';
+          noDevicesEl.classList.remove('hidden');
+          document.getElementById('deviceCount').textContent = '0';
+        }
+      } catch (error) {
+        console.error('Failed to load devices:', error);
+      }
+    }
+
+    // Format bytes
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Add device
+    document.getElementById('addDeviceBtn').addEventListener('click', () => {
+      openModal('addDeviceModal');
+    });
+
+    document.getElementById('addDeviceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('deviceName').value.trim();
+
+      if (!name) return;
+
+      try {
+        const response = await fetch('/api/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          closeModal('addDeviceModal');
+          document.getElementById('deviceName').value = '';
+          await loadDevices();
+          await loadSubscription();
+          // Show download modal
+          downloadConfig(data.client.id, data.client.name);
+        } else {
+          alert(data.error || 'Failed to add device');
+        }
+      } catch (error) {
+        console.error('Failed to add device:', error);
+        alert('Failed to add device');
+      }
+    });
+
+    // Download config
+    function downloadConfig(clientId, clientName) {
+      const link = document.getElementById('downloadConfigLink');
+      link.href = `/api/clients/${clientId}/config`;
+      link.download = `${clientName.replace(/[^a-zA-Z0-9]/g, '_')}_wg.conf`;
+      openModal('downloadModal');
+    }
+
+    // Toggle device status
+    async function toggleDeviceStatus(clientId, currentStatus) {
+      const newStatus = currentStatus === 'enabled' ? 'paused' : 'enabled';
+
+      try {
+        const response = await fetch(`/api/clients/${clientId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          await loadDevices();
+        } else {
+          alert(data.error || 'Failed to update device');
+        }
+      } catch (error) {
+        console.error('Failed to update device:', error);
+      }
+    }
+
+    // Delete device
+    async function deleteDevice(clientId) {
+      if (!confirm('Are you sure you want to remove this device?')) return;
+
+      try {
+        const response = await fetch(`/api/clients/${clientId}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          await loadDevices();
+          await loadSubscription();
+        } else {
+          alert(data.error || 'Failed to delete device');
+        }
+      } catch (error) {
+        console.error('Failed to delete device:', error);
+      }
+    }
+
+    // Renew subscription
+    async function renewSubscription() {
+      if (!confirm('Renew subscription for another month?')) return;
+
+      try {
+        const response = await fetch('/api/subscription/renew', {
+          method: 'POST'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          alert('Subscription renewed successfully!');
+          await loadSubscription();
+        } else {
+          alert(data.error || 'Failed to renew subscription');
+        }
+      } catch (error) {
+        console.error('Failed to renew:', error);
+      }
+    }
+
+    // Cancel subscription
+    async function cancelSubscription() {
+      if (!confirm('Cancel auto-renewal? Your subscription will remain active until expiration.')) return;
+
+      try {
+        const response = await fetch('/api/subscription/cancel', {
+          method: 'POST'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          alert(data.message);
+          await loadSubscription();
+        } else {
+          alert(data.error || 'Failed to cancel');
+        }
+      } catch (error) {
+        console.error('Failed to cancel:', error);
+      }
+    }
+
+    // Modal helpers
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // Initialize
+    initDashboard();
+  </script>
+</body>
+</html>

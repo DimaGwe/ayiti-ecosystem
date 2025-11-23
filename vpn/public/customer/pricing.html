@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing - Ayiti VPN (Pwotek)</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Pwotek <span class="text-gradient">VPN</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/" data-i18n="nav.home">Home</a></li>
+        <li><a href="/customer/pricing.html" class="active" data-i18n="nav.pricing">Pricing</a></li>
+        <li><a href="/customer/dashboard.html" data-i18n="nav.dashboard">Dashboard</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="ht">HT</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+        <div id="userArea">
+          <a href="/auth/google" class="btn btn-primary" data-i18n="btn.login">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Header -->
+    <section class="hero" style="padding: 3rem 0;">
+      <div class="container">
+        <h1 data-i18n="pricing.pageTitle">Choose Your Plan</h1>
+        <p data-i18n="pricing.pageSubtitle">Pay with ecosystem credits. Earn credits by learning, contributing, and participating!</p>
+
+        <!-- User's credit balance -->
+        <div id="creditBalance" class="hidden" style="margin-top: 1.5rem;">
+          <div class="card" style="display: inline-block; padding: 1rem 2rem;">
+            <span style="color: var(--text-secondary);" data-i18n="pricing.yourBalance">Your Balance:</span>
+            <span id="userCredits" style="font-size: 1.5rem; font-weight: 700; color: var(--accent-purple); margin-left: 0.5rem;">0</span>
+            <span style="color: var(--text-muted);"> credits</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Plans -->
+    <section class="container" style="padding: 2rem 1.5rem;">
+      <div class="pricing-grid" id="pricingGrid">
+        <!-- Plans loaded via JavaScript -->
+        <div class="text-center" style="grid-column: 1 / -1; padding: 2rem;">
+          <div class="animate-spin" style="width: 40px; height: 40px; border: 3px solid var(--border-color); border-top-color: var(--accent-purple); border-radius: 50%; margin: 0 auto;"></div>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Loading plans...</p>
+        </div>
+      </div>
+
+      <!-- Current Subscription Notice -->
+      <div id="currentSubscription" class="hidden card mt-lg" style="max-width: 600px; margin-left: auto; margin-right: auto;">
+        <div class="flex-between">
+          <div>
+            <h4 style="margin-bottom: 0.25rem;">Current Subscription</h4>
+            <p id="currentPlanName" style="color: var(--text-muted); margin: 0;"></p>
+          </div>
+          <a href="/customer/dashboard.html" class="btn btn-secondary">Manage</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Comparison -->
+    <section style="background: var(--bg-secondary); padding: 3rem 0;">
+      <div class="container">
+        <h2 class="text-center" data-i18n="pricing.compareTitle">Compare Features</h2>
+
+        <div style="overflow-x: auto; margin-top: 2rem;">
+          <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <th style="text-align: left; padding: 1rem; color: var(--text-secondary);" data-i18n="table.feature">Feature</th>
+                <th style="text-align: center; padding: 1rem;">Free</th>
+                <th style="text-align: center; padding: 1rem;">Basic</th>
+                <th style="text-align: center; padding: 1rem; color: var(--accent-purple);">Premium</th>
+                <th style="text-align: center; padding: 1rem;">Pro</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem;" data-i18n="table.devices">Devices</td>
+                <td style="text-align: center; padding: 1rem;">1</td>
+                <td style="text-align: center; padding: 1rem;">3</td>
+                <td style="text-align: center; padding: 1rem;">5</td>
+                <td style="text-align: center; padding: 1rem;">10</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem;" data-i18n="table.data">Monthly Data</td>
+                <td style="text-align: center; padding: 1rem;">1 GB</td>
+                <td style="text-align: center; padding: 1rem;">10 GB</td>
+                <td style="text-align: center; padding: 1rem;">Unlimited</td>
+                <td style="text-align: center; padding: 1rem;">Unlimited</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem;" data-i18n="table.speed">Speed</td>
+                <td style="text-align: center; padding: 1rem;">Standard</td>
+                <td style="text-align: center; padding: 1rem;">Fast</td>
+                <td style="text-align: center; padding: 1rem;">Faster</td>
+                <td style="text-align: center; padding: 1rem;">Fastest</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem;" data-i18n="table.dedicatedIp">Dedicated IP</td>
+                <td style="text-align: center; padding: 1rem; color: var(--status-error);">-</td>
+                <td style="text-align: center; padding: 1rem; color: var(--status-error);">-</td>
+                <td style="text-align: center; padding: 1rem; color: var(--status-error);">-</td>
+                <td style="text-align: center; padding: 1rem; color: var(--status-success);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem;" data-i18n="table.support">Priority Support</td>
+                <td style="text-align: center; padding: 1rem; color: var(--status-error);">-</td>
+                <td style="text-align: center; padding: 1rem; color: var(--status-error);">-</td>
+                <td style="text-align: center; padding: 1rem; color: var(--status-success);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </td>
+                <td style="text-align: center; padding: 1rem; color: var(--status-success);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- How to Earn Credits -->
+    <section class="container" style="padding: 3rem 1.5rem;">
+      <h2 class="text-center" data-i18n="pricing.earnTitle">How to Earn Credits</h2>
+      <p class="text-center" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem;" data-i18n="pricing.earnSubtitle">
+        Credits are the shared currency across the Ayiti Ecosystem. Here's how you can earn them:
+      </p>
+
+      <div class="grid grid-4">
+        <div class="card text-center">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
+          <h4 data-i18n="earn.learn">Learn</h4>
+          <p style="color: var(--text-muted); font-size: 0.875rem;" data-i18n="earn.learnDesc">Complete courses and pass quizzes on Ayiti Academy</p>
+        </div>
+        <div class="card text-center">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎮</div>
+          <h4 data-i18n="earn.play">Play</h4>
+          <p style="color: var(--text-muted); font-size: 0.875rem;" data-i18n="earn.playDesc">Answer trivia questions on Ayiti Trivia</p>
+        </div>
+        <div class="card text-center">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">☀️</div>
+          <h4 data-i18n="earn.solar">Solar</h4>
+          <p style="color: var(--text-muted); font-size: 0.875rem;" data-i18n="earn.solarDesc">Generate solar energy with Ayiti Solar</p>
+        </div>
+        <div class="card text-center">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">♻️</div>
+          <h4 data-i18n="earn.recycle">Recycle</h4>
+          <p style="color: var(--text-muted); font-size: 0.875rem;" data-i18n="earn.recycleDesc">Earn rewards by recycling with Ayiti Green</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section style="background: var(--bg-secondary); padding: 3rem 0;">
+      <div class="container" style="max-width: 800px;">
+        <h2 class="text-center" data-i18n="faq.title">Frequently Asked Questions</h2>
+
+        <div class="card mt-lg">
+          <details style="padding: 1rem 0; border-bottom: 1px solid var(--border-color);">
+            <summary style="cursor: pointer; font-weight: 500;" data-i18n="faq.q1">What is WireGuard?</summary>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;" data-i18n="faq.a1">
+              WireGuard is a modern, fast, and secure VPN protocol. It uses state-of-the-art cryptography and is designed to be simpler and more efficient than older protocols like OpenVPN.
+            </p>
+          </details>
+
+          <details style="padding: 1rem 0; border-bottom: 1px solid var(--border-color);">
+            <summary style="cursor: pointer; font-weight: 500;" data-i18n="faq.q2">How do I get credits?</summary>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;" data-i18n="faq.a2">
+              Credits are earned across the Ayiti Ecosystem. Complete lessons, answer trivia questions, generate solar energy, or recycle materials to earn credits that can be spent on VPN subscriptions.
+            </p>
+          </details>
+
+          <details style="padding: 1rem 0; border-bottom: 1px solid var(--border-color);">
+            <summary style="cursor: pointer; font-weight: 500;" data-i18n="faq.q3">Can I use VPN on multiple devices?</summary>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;" data-i18n="faq.a3">
+              Yes! Depending on your plan, you can connect multiple devices simultaneously. Each device gets its own configuration file that you import into the WireGuard app.
+            </p>
+          </details>
+
+          <details style="padding: 1rem 0;">
+            <summary style="cursor: pointer; font-weight: 500;" data-i18n="faq.q4">What happens when my subscription expires?</summary>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;" data-i18n="faq.a4">
+              If auto-renewal is enabled and you have enough credits, your subscription will automatically renew. Otherwise, your VPN access will be paused until you renew manually.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p style="color: var(--text-muted);">&copy; 2024 Ayiti Ecosystem. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="#" data-i18n="footer.privacy">Privacy Policy</a>
+        <a href="#" data-i18n="footer.terms">Terms of Service</a>
+        <a href="#" data-i18n="footer.support">Support</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/i18n.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let currentUser = null;
+    let currentSubscription = null;
+
+    // Initialize page
+    async function initPricing() {
+      await checkAuth();
+      await loadPlans();
+      await loadCurrentSubscription();
+    }
+
+    // Check authentication
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+
+        if (data.success && data.user) {
+          currentUser = data.user;
+          document.getElementById('creditBalance').classList.remove('hidden');
+          document.getElementById('userCredits').textContent = data.user.credits;
+          updateUserArea(data.user);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+    }
+
+    // Load pricing plans
+    async function loadPlans() {
+      try {
+        const response = await fetch('/api/plans');
+        const data = await response.json();
+
+        if (data.success) {
+          const grid = document.getElementById('pricingGrid');
+          grid.innerHTML = data.plans.map((plan, index) => `
+            <div class="pricing-card ${index === 2 ? 'featured' : ''}">
+              <h3>${plan.name}</h3>
+              <div class="pricing-price">
+                ${plan.creditsMonthly}
+                <span>credits/mo</span>
+              </div>
+              <ul class="pricing-features">
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  ${plan.deviceLimit} Device${plan.deviceLimit > 1 ? 's' : ''}
+                </li>
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  ${plan.isUnlimited ? 'Unlimited Data' : plan.dataLimitGb + ' GB Data'}
+                </li>
+                ${(plan.features || []).map(f => `
+                  <li>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    ${f}
+                  </li>
+                `).join('')}
+              </ul>
+              <button class="btn btn-primary" style="width: 100%;" onclick="subscribe(${plan.id}, ${plan.creditsMonthly})" id="plan-btn-${plan.id}">
+                ${plan.creditsMonthly === 0 ? 'Get Free' : 'Subscribe'}
+              </button>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Failed to load plans:', error);
+        document.getElementById('pricingGrid').innerHTML = `
+          <div class="text-center" style="grid-column: 1 / -1;">
+            <p style="color: var(--status-error);">Failed to load plans. Please refresh the page.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Load current subscription
+    async function loadCurrentSubscription() {
+      if (!currentUser) return;
+
+      try {
+        const response = await fetch('/api/subscription');
+        const data = await response.json();
+
+        if (data.success && data.subscription) {
+          currentSubscription = data.subscription;
+          document.getElementById('currentSubscription').classList.remove('hidden');
+          document.getElementById('currentPlanName').textContent =
+            `${data.subscription.plan.name} - ${data.subscription.daysRemaining} days remaining`;
+
+          // Disable subscribe button for current plan
+          const btn = document.getElementById(`plan-btn-${data.subscription.plan.id}`);
+          if (btn) {
+            btn.textContent = 'Current Plan';
+            btn.disabled = true;
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load subscription:', error);
+      }
+    }
+
+    // Subscribe to plan
+    async function subscribe(planId, credits) {
+      if (!currentUser) {
+        window.location.href = '/auth/google';
+        return;
+      }
+
+      if (currentSubscription) {
+        alert('You already have an active subscription. Please cancel it first from your dashboard.');
+        return;
+      }
+
+      if (credits > 0 && currentUser.credits < credits) {
+        alert(`Insufficient credits. You have ${currentUser.credits} credits but need ${credits}.`);
+        return;
+      }
+
+      if (!confirm(`Subscribe to this plan for ${credits} credits per month?`)) return;
+
+      try {
+        const response = await fetch('/api/subscription/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('Subscription created successfully!');
+          window.location.href = '/customer/dashboard.html';
+        } else {
+          alert(data.error || 'Failed to subscribe');
+        }
+      } catch (error) {
+        console.error('Failed to subscribe:', error);
+        alert('Failed to subscribe. Please try again.');
+      }
+    }
+
+    // Initialize
+    initPricing();
+  </script>
+</body>
+</html>

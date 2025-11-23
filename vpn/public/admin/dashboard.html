@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Ayiti VPN (Pwotek)</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Pwotek <span class="text-gradient">VPN</span></span>
+        <span style="background: var(--status-warning); color: black; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">ADMIN</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/admin/dashboard.html" class="active">Dashboard</a></li>
+        <li><a href="/">Public Site</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+        <div id="userArea">
+          <a href="/auth/google" class="btn btn-primary">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container" style="padding: 2rem 1.5rem;">
+    <!-- Access Denied -->
+    <div id="accessDenied" class="card text-center hidden" style="max-width: 500px; margin: 4rem auto;">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--status-error); margin-bottom: 1rem;">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M15 9l-6 6M9 9l6 6"/>
+      </svg>
+      <h2>Access Denied</h2>
+      <p style="color: var(--text-secondary);">You don't have permission to access the admin panel.</p>
+      <a href="/" class="btn btn-primary mt-lg">Return Home</a>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminContent" class="hidden">
+      <h1 style="margin-bottom: 2rem;">Admin Dashboard</h1>
+
+      <!-- Stats Overview -->
+      <div class="stats-grid mb-lg">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotalClients">-</div>
+          <div class="stat-label">Total Clients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statActiveClients">-</div>
+          <div class="stat-label">Active Clients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statSubscriptions">-</div>
+          <div class="stat-label">Active Subscriptions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statBandwidth">-</div>
+          <div class="stat-label">Total Bandwidth</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-md mb-lg">
+        <button class="btn btn-primary" id="tabClients" onclick="showTab('clients')">Clients</button>
+        <button class="btn btn-secondary" id="tabSubscriptions" onclick="showTab('subscriptions')">Subscriptions</button>
+        <button class="btn btn-secondary" id="tabUsage" onclick="showTab('usage')">Usage Analytics</button>
+        <button class="btn btn-secondary" id="tabPlans" onclick="showTab('plans')">Plans</button>
+      </div>
+
+      <!-- Clients Tab -->
+      <div id="clientsTab" class="card">
+        <div class="card-header">
+          <h2 class="card-title">VPN Clients</h2>
+          <div class="flex gap-sm">
+            <select id="clientStatusFilter" class="form-input" style="width: auto;" onchange="loadClients()">
+              <option value="">All Status</option>
+              <option value="enabled">Enabled</option>
+              <option value="paused">Paused</option>
+              <option value="disabled">Disabled</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <th style="text-align: left; padding: 1rem;">Device</th>
+                <th style="text-align: left; padding: 1rem;">User</th>
+                <th style="text-align: left; padding: 1rem;">IP Address</th>
+                <th style="text-align: left; padding: 1rem;">Plan</th>
+                <th style="text-align: left; padding: 1rem;">Status</th>
+                <th style="text-align: left; padding: 1rem;">Bandwidth</th>
+                <th style="text-align: left; padding: 1rem;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="clientsTableBody">
+              <tr>
+                <td colspan="7" class="text-center" style="padding: 2rem; color: var(--text-muted);">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="clientsPagination" class="flex-between mt-md"></div>
+      </div>
+
+      <!-- Subscriptions Tab -->
+      <div id="subscriptionsTab" class="card hidden">
+        <div class="card-header">
+          <h2 class="card-title">Subscriptions</h2>
+          <select id="subStatusFilter" class="form-input" style="width: auto;" onchange="loadSubscriptions()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="expired">Expired</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <th style="text-align: left; padding: 1rem;">User</th>
+                <th style="text-align: left; padding: 1rem;">Plan</th>
+                <th style="text-align: left; padding: 1rem;">Status</th>
+                <th style="text-align: left; padding: 1rem;">Credits Paid</th>
+                <th style="text-align: left; padding: 1rem;">Started</th>
+                <th style="text-align: left; padding: 1rem;">Expires</th>
+                <th style="text-align: left; padding: 1rem;">Auto-Renew</th>
+              </tr>
+            </thead>
+            <tbody id="subscriptionsTableBody">
+              <tr>
+                <td colspan="7" class="text-center" style="padding: 2rem; color: var(--text-muted);">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="subsPagination" class="flex-between mt-md"></div>
+      </div>
+
+      <!-- Usage Tab -->
+      <div id="usageTab" class="card hidden">
+        <div class="card-header">
+          <h2 class="card-title">Usage Analytics</h2>
+          <select id="usagePeriod" class="form-input" style="width: auto;" onchange="loadUsage()">
+            <option value="24h">Last 24 Hours</option>
+            <option value="7d" selected>Last 7 Days</option>
+            <option value="30d">Last 30 Days</option>
+          </select>
+        </div>
+
+        <div class="stats-grid mb-lg">
+          <div class="stat-card">
+            <div class="stat-value" id="usageDownload">-</div>
+            <div class="stat-label">Downloaded</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="usageUpload">-</div>
+            <div class="stat-label">Uploaded</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="usageSessions">-</div>
+            <div class="stat-label">Sessions</div>
+          </div>
+        </div>
+
+        <h4>Top Users by Bandwidth</h4>
+        <div id="topUsers" style="margin-top: 1rem;">
+          <p style="color: var(--text-muted);">Loading...</p>
+        </div>
+      </div>
+
+      <!-- Plans Tab -->
+      <div id="plansTab" class="card hidden">
+        <div class="card-header">
+          <h2 class="card-title">Subscription Plans</h2>
+        </div>
+
+        <div id="plansList" class="grid grid-4">
+          <p style="color: var(--text-muted);">Loading...</p>
+        </div>
+      </div>
+
+      <!-- WireGuard Status -->
+      <div class="card mt-lg">
+        <div class="card-header">
+          <h2 class="card-title">WireGuard Server</h2>
+          <span id="wgStatus" class="status-badge">Checking...</span>
+        </div>
+        <div id="wgDetails">
+          <p style="color: var(--text-muted);">Loading server status...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p style="color: var(--text-muted);">&copy; 2024 Ayiti Ecosystem. Admin Panel</p>
+    </div>
+  </footer>
+
+  <script src="/js/i18n.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let currentUser = null;
+
+    // Initialize admin dashboard
+    async function initAdmin() {
+      await checkAuth();
+    }
+
+    // Check authentication and admin role
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+
+        if (data.success && data.user) {
+          currentUser = data.user;
+          updateUserArea(data.user);
+
+          if (data.user.role === 'admin') {
+            document.getElementById('adminContent').classList.remove('hidden');
+            loadStats();
+            loadClients();
+            loadWgStatus();
+          } else {
+            document.getElementById('accessDenied').classList.remove('hidden');
+          }
+        } else {
+          document.getElementById('accessDenied').classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        document.getElementById('accessDenied').classList.remove('hidden');
+      }
+    }
+
+    // Load stats
+    async function loadStats() {
+      try {
+        const response = await fetch('/api/admin/stats');
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById('statTotalClients').textContent = data.stats.clients.total;
+          document.getElementById('statActiveClients').textContent = data.stats.clients.active;
+          document.getElementById('statSubscriptions').textContent = data.stats.subscriptions.total;
+          document.getElementById('statBandwidth').textContent =
+            data.stats.bandwidth.totalReceivedFormatted + ' / ' + data.stats.bandwidth.totalSentFormatted;
+        }
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+      }
+    }
+
+    // Load clients
+    async function loadClients(page = 1) {
+      const status = document.getElementById('clientStatusFilter').value;
+      const params = new URLSearchParams({ page, limit: 10 });
+      if (status) params.set('status', status);
+
+      try {
+        const response = await fetch(`/api/admin/clients?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const tbody = document.getElementById('clientsTableBody');
+          if (data.clients.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding: 2rem; color: var(--text-muted);">No clients found</td></tr>';
+          } else {
+            tbody.innerHTML = data.clients.map(client => `
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem;">${client.name}</td>
+                <td style="padding: 1rem;">${client.user?.name || '-'}<br><small style="color: var(--text-muted);">${client.user?.email || ''}</small></td>
+                <td style="padding: 1rem; font-family: monospace;">${client.ipAddress}</td>
+                <td style="padding: 1rem;">${client.plan || '-'}</td>
+                <td style="padding: 1rem;"><span class="status-badge ${client.status}">${client.status}</span></td>
+                <td style="padding: 1rem;">↓${client.bytesReceivedFormatted}<br>↑${client.bytesSentFormatted}</td>
+                <td style="padding: 1rem;">
+                  <button class="btn btn-sm btn-secondary" onclick="toggleClient(${client.id}, '${client.status}')">
+                    ${client.status === 'enabled' ? 'Disable' : 'Enable'}
+                  </button>
+                </td>
+              </tr>
+            `).join('');
+          }
+
+          // Pagination
+          const pagination = document.getElementById('clientsPagination');
+          pagination.innerHTML = `
+            <span style="color: var(--text-muted);">Showing ${data.clients.length} of ${data.pagination.total}</span>
+            <div class="flex gap-sm">
+              <button class="btn btn-sm btn-secondary" ${data.pagination.page <= 1 ? 'disabled' : ''} onclick="loadClients(${data.pagination.page - 1})">Prev</button>
+              <span style="padding: 0.5rem;">Page ${data.pagination.page} of ${data.pagination.pages}</span>
+              <button class="btn btn-sm btn-secondary" ${data.pagination.page >= data.pagination.pages ? 'disabled' : ''} onclick="loadClients(${data.pagination.page + 1})">Next</button>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Failed to load clients:', error);
+      }
+    }
+
+    // Toggle client status
+    async function toggleClient(clientId, currentStatus) {
+      const newStatus = currentStatus === 'enabled' ? 'disabled' : 'enabled';
+
+      try {
+        const response = await fetch(`/api/admin/clients/${clientId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          loadClients();
+          loadStats();
+        }
+      } catch (error) {
+        console.error('Failed to update client:', error);
+      }
+    }
+
+    // Load subscriptions
+    async function loadSubscriptions(page = 1) {
+      const status = document.getElementById('subStatusFilter').value;
+      const params = new URLSearchParams({ page, limit: 10 });
+      if (status) params.set('status', status);
+
+      try {
+        const response = await fetch(`/api/admin/subscriptions?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const tbody = document.getElementById('subscriptionsTableBody');
+          if (data.subscriptions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding: 2rem; color: var(--text-muted);">No subscriptions found</td></tr>';
+          } else {
+            tbody.innerHTML = data.subscriptions.map(sub => `
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem;">${sub.user?.name || '-'}<br><small style="color: var(--text-muted);">${sub.user?.email || ''}</small></td>
+                <td style="padding: 1rem;">${sub.plan || '-'}</td>
+                <td style="padding: 1rem;"><span class="status-badge ${sub.status === 'active' ? 'enabled' : 'disabled'}">${sub.status}</span></td>
+                <td style="padding: 1rem;">${sub.creditsPaid}</td>
+                <td style="padding: 1rem;">${new Date(sub.startedAt).toLocaleDateString()}</td>
+                <td style="padding: 1rem;">${new Date(sub.expiresAt).toLocaleDateString()}</td>
+                <td style="padding: 1rem;">${sub.autoRenew ? 'Yes' : 'No'}</td>
+              </tr>
+            `).join('');
+          }
+
+          // Pagination
+          const pagination = document.getElementById('subsPagination');
+          pagination.innerHTML = `
+            <span style="color: var(--text-muted);">Showing ${data.subscriptions.length} of ${data.pagination.total}</span>
+            <div class="flex gap-sm">
+              <button class="btn btn-sm btn-secondary" ${data.pagination.page <= 1 ? 'disabled' : ''} onclick="loadSubscriptions(${data.pagination.page - 1})">Prev</button>
+              <span style="padding: 0.5rem;">Page ${data.pagination.page} of ${data.pagination.pages}</span>
+              <button class="btn btn-sm btn-secondary" ${data.pagination.page >= data.pagination.pages ? 'disabled' : ''} onclick="loadSubscriptions(${data.pagination.page + 1})">Next</button>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Failed to load subscriptions:', error);
+      }
+    }
+
+    // Load usage analytics
+    async function loadUsage() {
+      const period = document.getElementById('usagePeriod').value;
+
+      try {
+        const response = await fetch(`/api/admin/usage?period=${period}`);
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById('usageDownload').textContent = data.stats.totalBytesReceivedFormatted;
+          document.getElementById('usageUpload').textContent = data.stats.totalBytesSentFormatted;
+          document.getElementById('usageSessions').textContent = data.stats.totalSessions;
+
+          const topUsersEl = document.getElementById('topUsers');
+          if (data.topUsers.length === 0) {
+            topUsersEl.innerHTML = '<p style="color: var(--text-muted);">No usage data available</p>';
+          } else {
+            topUsersEl.innerHTML = data.topUsers.map((user, i) => `
+              <div class="flex-between" style="padding: 0.75rem; ${i > 0 ? 'border-top: 1px solid var(--border-color);' : ''}">
+                <div class="flex gap-md" style="align-items: center;">
+                  <span style="color: var(--text-muted);">#${i + 1}</span>
+                  <span>${user.user?.name || 'Unknown'}</span>
+                </div>
+                <div style="text-align: right;">
+                  <span>↓${user.bytesReceivedFormatted}</span>
+                  <span style="margin-left: 0.5rem;">↑${user.bytesSentFormatted}</span>
+                  <span style="margin-left: 0.5rem; color: var(--text-muted);">(${user.sessions} sessions)</span>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load usage:', error);
+      }
+    }
+
+    // Load plans
+    async function loadPlans() {
+      try {
+        const response = await fetch('/api/admin/plans');
+        const data = await response.json();
+
+        if (data.success) {
+          const list = document.getElementById('plansList');
+          list.innerHTML = data.plans.map(plan => `
+            <div class="card" style="opacity: ${plan.active ? 1 : 0.5};">
+              <h4>${plan.name}</h4>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">${plan.nameHt || ''}</p>
+              <div style="margin: 1rem 0;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-purple);">
+                  ${plan.creditsMonthly} <span style="font-size: 0.875rem; color: var(--text-muted);">credits/mo</span>
+                </div>
+              </div>
+              <ul style="list-style: none; font-size: 0.875rem; color: var(--text-secondary);">
+                <li>${plan.deviceLimit} devices</li>
+                <li>${plan.dataLimitGb ? plan.dataLimitGb + ' GB' : 'Unlimited'} data</li>
+              </ul>
+              <span class="status-badge ${plan.active ? 'enabled' : 'disabled'}" style="margin-top: 1rem;">
+                ${plan.active ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Failed to load plans:', error);
+      }
+    }
+
+    // Load WireGuard status
+    async function loadWgStatus() {
+      try {
+        const response = await fetch('/api/wg/status');
+        const data = await response.json();
+
+        const statusEl = document.getElementById('wgStatus');
+        const detailsEl = document.getElementById('wgDetails');
+
+        if (data.success) {
+          statusEl.className = 'status-badge ' + (data.available ? 'enabled' : 'paused');
+          statusEl.textContent = data.available ? 'Running' : 'Mock Mode';
+
+          detailsEl.innerHTML = `
+            <div class="grid grid-2" style="gap: 1rem;">
+              <div>
+                <p style="margin: 0; color: var(--text-muted);">Mode</p>
+                <p style="margin: 0;">${data.available ? 'Production' : 'Development (Mock)'}</p>
+              </div>
+              <div>
+                <p style="margin: 0; color: var(--text-muted);">Interface</p>
+                <p style="margin: 0;">wg0</p>
+              </div>
+            </div>
+          `;
+        } else {
+          statusEl.className = 'status-badge disabled';
+          statusEl.textContent = 'Error';
+          detailsEl.innerHTML = '<p style="color: var(--status-error);">Failed to get WireGuard status</p>';
+        }
+      } catch (error) {
+        console.error('Failed to get WG status:', error);
+      }
+    }
+
+    // Tab navigation
+    function showTab(tab) {
+      // Hide all tabs
+      document.getElementById('clientsTab').classList.add('hidden');
+      document.getElementById('subscriptionsTab').classList.add('hidden');
+      document.getElementById('usageTab').classList.add('hidden');
+      document.getElementById('plansTab').classList.add('hidden');
+
+      // Reset all buttons
+      document.getElementById('tabClients').className = 'btn btn-secondary';
+      document.getElementById('tabSubscriptions').className = 'btn btn-secondary';
+      document.getElementById('tabUsage').className = 'btn btn-secondary';
+      document.getElementById('tabPlans').className = 'btn btn-secondary';
+
+      // Show selected tab
+      document.getElementById(tab + 'Tab').classList.remove('hidden');
+      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).className = 'btn btn-primary';
+
+      // Load data for tab
+      if (tab === 'subscriptions') loadSubscriptions();
+      if (tab === 'usage') loadUsage();
+      if (tab === 'plans') loadPlans();
+    }
+
+    // Initialize
+    initAdmin();
+  </script>
+</body>
+</html>
