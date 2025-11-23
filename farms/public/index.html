@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayiti Farms - Local Agriculture Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <span class="logo-icon">&#127793;</span>
+        <span class="logo-text">Ayiti Farms</span>
+      </a>
+      <div class="nav-links">
+        <a href="#browse" class="nav-link active" data-section="browse">Browse</a>
+        <a href="#sell" class="nav-link" data-section="sell">Sell</a>
+        <a href="#orders" class="nav-link" data-section="orders">My Orders</a>
+      </div>
+      <div class="nav-auth">
+        <div id="user-info" class="user-info hidden">
+          <img id="user-avatar" class="user-avatar" src="" alt="Avatar">
+          <span id="user-name" class="user-name"></span>
+          <span id="user-credits" class="user-credits">0 credits</span>
+          <a href="/auth/logout" class="btn btn-outline btn-sm">Logout</a>
+        </div>
+        <a href="/auth/google" id="login-btn" class="btn btn-primary">Sign in with Google</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Fresh From the Farm</h1>
+        <p>Connect directly with local farmers. Support agriculture in Haiti while getting the freshest produce, livestock, and farm products.</p>
+        <div class="hero-search">
+          <input type="text" id="hero-search" placeholder="Search for products..." class="search-input">
+          <button class="btn btn-primary" onclick="performSearch()">Search</button>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="farm-icon">&#127806;</div>
+      </div>
+    </section>
+
+    <!-- Browse Section -->
+    <section id="browse" class="section">
+      <div class="container">
+        <h2 class="section-title">Browse Products</h2>
+        <p class="section-subtitle">Fresh produce from local farmers across Haiti</p>
+
+        <!-- Categories -->
+        <div id="categories" class="categories-grid">
+          <!-- Categories loaded dynamically -->
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+          <div class="filter-group">
+            <select id="category-filter">
+              <option value="">All Categories</option>
+              <option value="vegetables">Vegetables</option>
+              <option value="fruits">Fruits</option>
+              <option value="grains">Grains</option>
+              <option value="livestock">Livestock</option>
+              <option value="dairy">Dairy</option>
+              <option value="eggs">Eggs</option>
+              <option value="herbs">Herbs</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <select id="city-filter">
+              <option value="">All Cities</option>
+              <option value="Port-au-Prince">Port-au-Prince</option>
+              <option value="Petionville">Petionville</option>
+              <option value="Delmas">Delmas</option>
+              <option value="Carrefour">Carrefour</option>
+              <option value="Cap-Haitien">Cap-Haitien</option>
+              <option value="Jacmel">Jacmel</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="organic-filter">
+              <span>Organic Only</span>
+            </label>
+          </div>
+          <div class="filter-group">
+            <input type="number" id="min-price" placeholder="Min Price" min="0">
+            <input type="number" id="max-price" placeholder="Max Price" min="0">
+          </div>
+          <button class="btn btn-outline" onclick="applyFilters()">Apply Filters</button>
+        </div>
+
+        <!-- Listings Grid -->
+        <div id="listings-grid" class="listings-grid">
+          <p class="loading">Loading fresh products...</p>
+        </div>
+
+        <!-- Load More -->
+        <div id="load-more-container" class="load-more-container hidden">
+          <button class="btn btn-outline" onclick="loadMoreListings()">Load More</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sell Section -->
+    <section id="sell" class="section hidden">
+      <div class="container">
+        <h2 class="section-title">Sell Your Products</h2>
+        <p class="section-subtitle">List your farm products and reach buyers across Haiti</p>
+
+        <div id="sell-login-prompt" class="login-prompt hidden">
+          <p>Sign in to list your products</p>
+          <a href="/auth/google" class="btn btn-primary">Sign in with Google</a>
+        </div>
+
+        <div id="sell-form-container" class="form-container hidden">
+          <form id="listing-form" class="listing-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="listing-title">Product Title *</label>
+                <input type="text" id="listing-title" placeholder="e.g., Fresh Organic Tomatoes" required>
+              </div>
+              <div class="form-group">
+                <label for="listing-category">Category *</label>
+                <select id="listing-category" required>
+                  <option value="">Select category...</option>
+                  <option value="vegetables">Vegetables</option>
+                  <option value="fruits">Fruits</option>
+                  <option value="grains">Grains</option>
+                  <option value="livestock">Livestock</option>
+                  <option value="dairy">Dairy</option>
+                  <option value="eggs">Eggs</option>
+                  <option value="herbs">Herbs</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="listing-description">Description</label>
+              <textarea id="listing-description" rows="3" placeholder="Describe your product..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="listing-price">Price (credits) *</label>
+                <input type="number" id="listing-price" min="0.01" step="0.01" placeholder="0.00" required>
+              </div>
+              <div class="form-group">
+                <label for="listing-unit">Unit *</label>
+                <select id="listing-unit" required>
+                  <option value="per unit">Per Unit</option>
+                  <option value="per kg">Per Kg</option>
+                  <option value="per lb">Per Lb</option>
+                  <option value="per dozen">Per Dozen</option>
+                  <option value="per bundle">Per Bundle</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="listing-quantity">Quantity Available</label>
+                <input type="number" id="listing-quantity" min="0" step="0.1" placeholder="Optional">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="listing-city">City</label>
+                <input type="text" id="listing-city" placeholder="e.g., Port-au-Prince">
+              </div>
+              <div class="form-group">
+                <label for="listing-location">Location Details</label>
+                <input type="text" id="listing-location" placeholder="e.g., Near Marche Fer">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="listing-image">Image URL</label>
+              <input type="url" id="listing-image" placeholder="https://...">
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="listing-organic">
+                <span>This is an organic product</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-block">Create Listing</button>
+          </form>
+
+          <!-- My Listings -->
+          <div class="my-listings-section">
+            <h3>My Listings</h3>
+            <div id="my-listings" class="my-listings-grid">
+              <p class="empty-state">You haven't listed any products yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Orders Section -->
+    <section id="orders" class="section hidden">
+      <div class="container">
+        <h2 class="section-title">My Orders</h2>
+        <p class="section-subtitle">Track your purchases and sales</p>
+
+        <div id="orders-login-prompt" class="login-prompt hidden">
+          <p>Sign in to view your orders</p>
+          <a href="/auth/google" class="btn btn-primary">Sign in with Google</a>
+        </div>
+
+        <div id="orders-container" class="orders-container hidden">
+          <div class="orders-tabs">
+            <button class="tab-btn active" data-tab="purchases" onclick="switchOrderTab('purchases')">My Purchases</button>
+            <button class="tab-btn" data-tab="sales" onclick="switchOrderTab('sales')">My Sales</button>
+          </div>
+
+          <div id="purchases-tab" class="tab-content">
+            <div id="purchases-list" class="orders-list">
+              <p class="loading">Loading your orders...</p>
+            </div>
+          </div>
+
+          <div id="sales-tab" class="tab-content hidden">
+            <div id="sales-list" class="orders-list">
+              <p class="loading">Loading your sales...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Listing Detail Modal -->
+    <div id="listing-modal" class="modal hidden">
+      <div class="modal-overlay" onclick="closeModal()"></div>
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div id="modal-body">
+          <!-- Content loaded dynamically -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>&copy; 2024 Ayiti Ecosystem. All rights reserved.</p>
+      <p class="footer-tagline">Supporting local agriculture in Haiti</p>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
