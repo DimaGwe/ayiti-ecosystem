@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayiti Trivia - Play to Earn</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span class="logo-icon">🇭🇹</span>
+        <span class="logo-text">Ayiti Trivia</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-btn" data-view="home">Home</button>
+        <button class="nav-btn" data-view="leaderboard">Leaderboard</button>
+      </nav>
+      <div class="user-section">
+        <div id="user-info" class="user-info hidden">
+          <span class="credits">
+            <span class="credits-icon">⭐</span>
+            <span id="user-credits">0</span>
+          </span>
+          <img id="user-avatar" class="avatar" src="" alt="Avatar">
+          <span id="user-name" class="user-name"></span>
+          <button id="logout-btn" class="btn btn-outline btn-sm">Logout</button>
+        </div>
+        <a id="login-btn" href="/auth/google" class="btn btn-primary hidden">
+          Sign in with Google
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Home View -->
+    <section id="home-view" class="view">
+      <div class="hero">
+        <h1 class="hero-title">Test Your Knowledge</h1>
+        <p class="hero-subtitle">Answer trivia questions about Haiti and earn credits!</p>
+
+        <div class="game-info-cards">
+          <div class="info-card">
+            <div class="info-icon">📚</div>
+            <h3>4 Categories</h3>
+            <p>History, Geography, Culture, General Knowledge</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">⏱️</div>
+            <h3>15 Seconds</h3>
+            <p>Quick thinking required!</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">🎯</div>
+            <h3>10 Questions</h3>
+            <p>Per game session</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">💰</div>
+            <h3>Earn Credits</h3>
+            <p>Score / 10 = Credits earned</p>
+          </div>
+        </div>
+
+        <div class="difficulty-info">
+          <h3>Point Values</h3>
+          <div class="difficulty-badges">
+            <span class="badge badge-easy">Easy: 10 pts</span>
+            <span class="badge badge-medium">Medium: 20 pts</span>
+            <span class="badge badge-hard">Hard: 30 pts</span>
+          </div>
+        </div>
+
+        <button id="start-game-btn" class="btn btn-primary btn-lg">
+          Start Game
+        </button>
+
+        <div id="login-prompt" class="login-prompt hidden">
+          <p>Please sign in to play and earn credits!</p>
+          <a href="/auth/google" class="btn btn-primary">Sign in with Google</a>
+        </div>
+      </div>
+
+      <!-- User Stats (shown when logged in) -->
+      <div id="user-stats" class="user-stats hidden">
+        <h2>Your Stats</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-games">0</div>
+            <div class="stat-label">Games Played</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-score">0</div>
+            <div class="stat-label">Total Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-best">0</div>
+            <div class="stat-label">Best Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-accuracy">0%</div>
+            <div class="stat-label">Accuracy</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game View -->
+    <section id="game-view" class="view hidden">
+      <div class="game-container">
+        <!-- Game Header -->
+        <div class="game-header">
+          <div class="game-progress">
+            <span>Question <span id="question-number">1</span> / <span id="total-questions">10</span></span>
+          </div>
+          <div class="game-score">
+            Score: <span id="current-score">0</span>
+          </div>
+        </div>
+
+        <!-- Timer Bar -->
+        <div class="timer-container">
+          <div id="timer-bar" class="timer-bar"></div>
+        </div>
+        <div class="timer-text">
+          <span id="timer-seconds">15</span>s
+        </div>
+
+        <!-- Question Card -->
+        <div class="question-card">
+          <div class="question-meta">
+            <span id="question-category" class="category-badge">Category</span>
+            <span id="question-difficulty" class="difficulty-badge">Medium</span>
+            <span id="question-points" class="points-badge">+20 pts</span>
+          </div>
+          <h2 id="question-text" class="question-text">Loading question...</h2>
+        </div>
+
+        <!-- Answers -->
+        <div id="answers-container" class="answers-container">
+          <!-- Answers will be inserted here -->
+        </div>
+
+        <!-- Feedback -->
+        <div id="feedback" class="feedback hidden">
+          <div id="feedback-icon" class="feedback-icon"></div>
+          <div id="feedback-text" class="feedback-text"></div>
+          <button id="next-question-btn" class="btn btn-primary">Next Question</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results View -->
+    <section id="results-view" class="view hidden">
+      <div class="results-container">
+        <div class="results-header">
+          <h1>Game Complete!</h1>
+          <div class="results-score">
+            <div class="final-score" id="final-score">0</div>
+            <div class="score-label">Points</div>
+          </div>
+        </div>
+
+        <div class="results-stats">
+          <div class="result-stat">
+            <div class="result-stat-value" id="result-correct">0</div>
+            <div class="result-stat-label">Correct</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-stat-value" id="result-total">10</div>
+            <div class="result-stat-label">Questions</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-stat-value" id="result-accuracy">0%</div>
+            <div class="result-stat-label">Accuracy</div>
+          </div>
+        </div>
+
+        <div class="credits-earned">
+          <div class="credits-icon-lg">⭐</div>
+          <div class="credits-amount">+<span id="credits-earned">0</span> Credits</div>
+          <div class="credits-total">Total: <span id="credits-total">0</span></div>
+        </div>
+
+        <div class="results-actions">
+          <button id="play-again-btn" class="btn btn-primary btn-lg">Play Again</button>
+          <button id="view-leaderboard-btn" class="btn btn-outline btn-lg">View Leaderboard</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Leaderboard View -->
+    <section id="leaderboard-view" class="view hidden">
+      <div class="leaderboard-container">
+        <h1>Leaderboard</h1>
+        <p class="leaderboard-subtitle">Top 10 Trivia Champions</p>
+
+        <div id="leaderboard-list" class="leaderboard-list">
+          <!-- Leaderboard entries will be inserted here -->
+        </div>
+
+        <button id="back-home-btn" class="btn btn-outline">Back to Home</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Part of the <a href="https://ayiti.com">Ayiti Ecosystem</a></p>
+  </footer>
+
+  <script src="/js/game.js"></script>
+</body>
+</html>
