@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haiti Skills Academy - Learn, Certify, Work</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎓</span>
+                <span class="logo-text">Haiti Skills Academy</span>
+            </a>
+            <div class="nav-links">
+                <a href="#courses" data-page="courses">Courses</a>
+                <a href="#jobs" data-page="jobs">Jobs</a>
+                <a href="#companies" data-page="companies">Companies</a>
+                <div id="auth-section">
+                    <a href="/auth/google" class="btn btn-primary">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="app">
+        <!-- Home Page -->
+        <section id="page-home" class="page active">
+            <header class="hero">
+                <div class="container">
+                    <h1>Learn Skills. Get Certified. Find Work.</h1>
+                    <p class="hero-subtitle">Free courses in practical skills that lead to real jobs in Haiti</p>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-number">5</span>
+                            <span class="stat-label">Courses</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">9</span>
+                            <span class="stat-label">Pipeline Stages</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">5</span>
+                            <span class="stat-label">Companies Hiring</span>
+                        </div>
+                    </div>
+                    <a href="#courses" data-page="courses" class="btn btn-large btn-primary">Browse Courses</a>
+                </div>
+            </header>
+
+            <section class="section">
+                <div class="container">
+                    <h2>How It Works</h2>
+                    <p class="section-intro">9-stage pipeline from enrollment to employment</p>
+                    <div class="pipeline-visual">
+                        <div class="pipeline-stage">
+                            <div class="stage-number">1</div>
+                            <div class="stage-name">Enroll</div>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-stage">
+                            <div class="stage-number">2</div>
+                            <div class="stage-name">Learn</div>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-stage">
+                            <div class="stage-number">3</div>
+                            <div class="stage-name">Practice</div>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-stage">
+                            <div class="stage-number">4</div>
+                            <div class="stage-name">Test</div>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-stage">
+                            <div class="stage-number">5</div>
+                            <div class="stage-name">Certify</div>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-stage">
+                            <div class="stage-number">6</div>
+                            <div class="stage-name">Match</div>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-stage">
+                            <div class="stage-number">7</div>
+                            <div class="stage-name">Interview</div>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-stage">
+                            <div class="stage-number">8</div>
+                            <div class="stage-name">Hired!</div>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-stage">
+                            <div class="stage-number">9</div>
+                            <div class="stage-name">Success</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-dark">
+                <div class="container">
+                    <h2>Our Courses</h2>
+                    <p class="section-intro">Practical skills for real careers</p>
+                    <div id="home-courses" class="courses-grid">
+                        <!-- Loaded dynamically -->
+                        <div class="loading">Loading courses...</div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- Courses Page -->
+        <section id="page-courses" class="page">
+            <div class="container page-content">
+                <h1>Courses</h1>
+                <p class="page-intro">Choose a skill to master. Each course leads to certification and employment.</p>
+                <div id="courses-list" class="courses-grid">
+                    <div class="loading">Loading courses...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Course Detail Page -->
+        <section id="page-course-detail" class="page">
+            <div class="container page-content">
+                <div id="course-detail">
+                    <div class="loading">Loading course...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Jobs Page -->
+        <section id="page-jobs" class="page">
+            <div class="container page-content">
+                <h1>Job Board</h1>
+                <p class="page-intro">Browse open positions at Ayiti companies</p>
+                <div class="jobs-filters">
+                    <select id="filter-course">
+                        <option value="">All Courses</option>
+                    </select>
+                    <select id="filter-level">
+                        <option value="">All Levels</option>
+                        <option value="entry">Entry Level</option>
+                        <option value="mid">Mid Level</option>
+                        <option value="senior">Senior</option>
+                    </select>
+                </div>
+                <div id="jobs-list" class="jobs-grid">
+                    <div class="loading">Loading jobs...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Companies Page -->
+        <section id="page-companies" class="page">
+            <div class="container page-content">
+                <h1>Ayiti Companies</h1>
+                <p class="page-intro">Meet the companies hiring our graduates</p>
+                <div id="companies-list" class="companies-grid">
+                    <div class="loading">Loading companies...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Page (Authenticated) -->
+        <section id="page-dashboard" class="page">
+            <div class="container page-content">
+                <div class="dashboard-header">
+                    <h1>My Dashboard</h1>
+                    <div class="credits-badge">
+                        <span class="credits-icon">💰</span>
+                        <span id="user-credits">0</span> credits
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>Pipeline Progress</h3>
+                        <div id="pipeline-progress">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <h3>My Enrollments</h3>
+                        <div id="my-enrollments">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <h3>My Certifications</h3>
+                        <div id="my-certifications">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <h3>Job Applications</h3>
+                        <div id="my-applications">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Login Page -->
+        <section id="page-login" class="page">
+            <div class="container page-content login-page">
+                <div class="login-card">
+                    <h1>Welcome to Haiti Skills Academy</h1>
+                    <p>Sign in to track your progress, earn credits, and find jobs</p>
+                    <a href="/auth/google" class="btn btn-large btn-google">
+                        <span>🔐</span> Sign in with Google
+                    </a>
+                    <p class="login-note">One account across the entire Ayiti Ecosystem</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Haiti Skills Academy | Part of the <a href="//ayiti.com">Ayiti Ecosystem</a></p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
