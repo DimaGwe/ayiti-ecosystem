@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayiti Green - Recycling Rewards Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <span class="logo-icon">&#127793;</span>
+        <span class="logo-text">Ayiti Green</span>
+      </a>
+      <div class="nav-links">
+        <a href="#log" class="nav-link active" data-section="log">Log Recycling</a>
+        <a href="#locations" class="nav-link" data-section="locations">Collection Points</a>
+        <a href="#impact" class="nav-link" data-section="impact">My Impact</a>
+        <a href="#community" class="nav-link" data-section="community">Community</a>
+      </div>
+      <div class="nav-auth">
+        <div id="user-info" class="user-info hidden">
+          <img id="user-avatar" class="user-avatar" src="" alt="Avatar">
+          <span id="user-name" class="user-name"></span>
+          <span id="user-credits" class="user-credits">0 credits</span>
+          <a href="/auth/logout" class="btn btn-outline btn-sm">Logout</a>
+        </div>
+        <a href="/auth/google" id="login-btn" class="btn btn-primary">Sign in with Google</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Recycle. Earn. Save the Planet.</h1>
+        <p>Turn your recyclables into credits while making a positive environmental impact in Haiti.</p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span id="community-kg" class="stat-value">0</span>
+            <span class="stat-label">kg Recycled</span>
+          </div>
+          <div class="hero-stat">
+            <span id="community-co2" class="stat-value">0</span>
+            <span class="stat-label">kg CO2 Saved</span>
+          </div>
+          <div class="hero-stat">
+            <span id="community-trees" class="stat-value">0</span>
+            <span class="stat-label">Trees Saved</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="earth-icon">&#127758;</div>
+      </div>
+    </section>
+
+    <!-- Log Recycling Section -->
+    <section id="log" class="section">
+      <div class="container">
+        <h2 class="section-title">Log Your Recycling</h2>
+        <p class="section-subtitle">Select the type of waste and enter the weight to earn credits</p>
+
+        <div class="log-form-container">
+          <form id="recycling-form" class="recycling-form">
+            <div class="waste-types">
+              <label class="waste-type-card" data-type="plastic">
+                <input type="radio" name="wasteType" value="plastic" required>
+                <div class="waste-icon">&#129717;</div>
+                <span class="waste-name">Plastic</span>
+                <span class="waste-rate">5 credits/kg</span>
+              </label>
+              <label class="waste-type-card" data-type="paper">
+                <input type="radio" name="wasteType" value="paper">
+                <div class="waste-icon">&#128220;</div>
+                <span class="waste-name">Paper</span>
+                <span class="waste-rate">3 credits/kg</span>
+              </label>
+              <label class="waste-type-card" data-type="metal">
+                <input type="radio" name="wasteType" value="metal">
+                <div class="waste-icon">&#129691;</div>
+                <span class="waste-name">Metal</span>
+                <span class="waste-rate">8 credits/kg</span>
+              </label>
+              <label class="waste-type-card" data-type="glass">
+                <input type="radio" name="wasteType" value="glass">
+                <div class="waste-icon">&#129346;</div>
+                <span class="waste-name">Glass</span>
+                <span class="waste-rate">4 credits/kg</span>
+              </label>
+              <label class="waste-type-card" data-type="organic">
+                <input type="radio" name="wasteType" value="organic">
+                <div class="waste-icon">&#127823;</div>
+                <span class="waste-name">Organic</span>
+                <span class="waste-rate">2 credits/kg</span>
+              </label>
+              <label class="waste-type-card" data-type="electronics">
+                <input type="radio" name="wasteType" value="electronics">
+                <div class="waste-icon">&#128241;</div>
+                <span class="waste-name">Electronics</span>
+                <span class="waste-rate">10 credits/kg</span>
+              </label>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="weight">Weight (kg)</label>
+                <input type="number" id="weight" name="weightKg" step="0.1" min="0.1" placeholder="Enter weight" required>
+              </div>
+              <div class="form-group">
+                <label for="collection-point">Collection Point (Optional)</label>
+                <select id="collection-point" name="collectionPointId">
+                  <option value="">Select a location...</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="credits-preview" class="credits-preview hidden">
+              <span class="preview-label">You'll earn:</span>
+              <span id="preview-amount" class="preview-amount">0 credits</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-block" id="submit-btn">
+              Log Recycling
+            </button>
+          </form>
+
+          <!-- Success Message -->
+          <div id="success-message" class="success-message hidden">
+            <div class="success-icon">&#10004;</div>
+            <h3>Recycling Logged!</h3>
+            <p id="success-details"></p>
+            <button class="btn btn-outline" onclick="resetForm()">Log Another</button>
+          </div>
+        </div>
+
+        <!-- Recent History -->
+        <div class="history-section">
+          <h3>Recent Activity</h3>
+          <div id="history-list" class="history-list">
+            <p class="empty-state">Your recycling history will appear here</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collection Points Section -->
+    <section id="locations" class="section hidden">
+      <div class="container">
+        <h2 class="section-title">Collection Points</h2>
+        <p class="section-subtitle">Find recycling drop-off locations near you</p>
+
+        <div class="locations-filters">
+          <div class="form-group">
+            <label for="city-filter">City</label>
+            <select id="city-filter">
+              <option value="">All Cities</option>
+              <option value="Port-au-Prince">Port-au-Prince</option>
+              <option value="Petionville">Petionville</option>
+              <option value="Delmas">Delmas</option>
+              <option value="Carrefour">Carrefour</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="material-filter">Accepts</label>
+            <select id="material-filter">
+              <option value="">All Materials</option>
+              <option value="plastic">Plastic</option>
+              <option value="paper">Paper</option>
+              <option value="metal">Metal</option>
+              <option value="glass">Glass</option>
+              <option value="electronics">Electronics</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="locations-grid" class="locations-grid">
+          <p class="loading">Loading collection points...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- My Impact Section -->
+    <section id="impact" class="section hidden">
+      <div class="container">
+        <h2 class="section-title">Your Environmental Impact</h2>
+        <p class="section-subtitle">Track your contribution to a cleaner Haiti</p>
+
+        <div id="impact-dashboard" class="impact-dashboard">
+          <div class="impact-summary">
+            <div class="impact-card impact-total">
+              <div class="impact-icon">&#9851;</div>
+              <div class="impact-value" id="my-total-kg">0</div>
+              <div class="impact-label">kg Total Recycled</div>
+            </div>
+            <div class="impact-card impact-co2">
+              <div class="impact-icon">&#127811;</div>
+              <div class="impact-value" id="my-co2-saved">0</div>
+              <div class="impact-label">kg CO2 Saved</div>
+            </div>
+            <div class="impact-card impact-trees">
+              <div class="impact-icon">&#127795;</div>
+              <div class="impact-value" id="my-trees-saved">0</div>
+              <div class="impact-label">Trees Saved</div>
+            </div>
+          </div>
+
+          <div class="impact-breakdown">
+            <h3>Breakdown by Material</h3>
+            <div class="breakdown-grid">
+              <div class="breakdown-item">
+                <span class="breakdown-icon">&#129717;</span>
+                <span class="breakdown-label">Plastic</span>
+                <span id="my-plastic" class="breakdown-value">0 kg</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-icon">&#128220;</span>
+                <span class="breakdown-label">Paper</span>
+                <span id="my-paper" class="breakdown-value">0 kg</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-icon">&#129691;</span>
+                <span class="breakdown-label">Metal</span>
+                <span id="my-metal" class="breakdown-value">0 kg</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-icon">&#129346;</span>
+                <span class="breakdown-label">Glass</span>
+                <span id="my-glass" class="breakdown-value">0 kg</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-icon">&#127823;</span>
+                <span class="breakdown-label">Organic</span>
+                <span id="my-organic" class="breakdown-value">0 kg</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-icon">&#128241;</span>
+                <span class="breakdown-label">Electronics</span>
+                <span id="my-electronics" class="breakdown-value">0 kg</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="login-prompt" class="login-prompt hidden">
+          <p>Sign in to track your environmental impact</p>
+          <a href="/auth/google" class="btn btn-primary">Sign in with Google</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Community Impact Section -->
+    <section id="community" class="section hidden">
+      <div class="container">
+        <h2 class="section-title">Community Impact</h2>
+        <p class="section-subtitle">Together we're making Haiti greener</p>
+
+        <div class="community-stats">
+          <div class="community-stat-card">
+            <div class="stat-icon">&#9851;</div>
+            <div class="stat-value" id="total-recycled">0</div>
+            <div class="stat-label">kg Total Recycled</div>
+          </div>
+          <div class="community-stat-card">
+            <div class="stat-icon">&#127811;</div>
+            <div class="stat-value" id="total-co2">0</div>
+            <div class="stat-label">kg CO2 Saved</div>
+          </div>
+          <div class="community-stat-card">
+            <div class="stat-icon">&#127795;</div>
+            <div class="stat-value" id="total-trees">0</div>
+            <div class="stat-label">Trees Saved</div>
+          </div>
+          <div class="community-stat-card">
+            <div class="stat-icon">&#128101;</div>
+            <div class="stat-value" id="total-recyclers">0</div>
+            <div class="stat-label">Recyclers</div>
+          </div>
+        </div>
+
+        <div class="leaderboard-section">
+          <h3>Top Recyclers</h3>
+          <div id="leaderboard" class="leaderboard">
+            <p class="loading">Loading leaderboard...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>&copy; 2024 Ayiti Ecosystem. All rights reserved.</p>
+      <p class="footer-tagline">Building a sustainable future for Haiti</p>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
