@@ -16,6 +16,7 @@
             </a>
             <div class="nav-links">
                 <a href="#courses" data-page="courses">Courses</a>
+                <a href="#communities" data-page="communities">Communities</a>
                 <a href="#jobs" data-page="jobs">Jobs</a>
                 <a href="#companies" data-page="companies">Companies</a>
                 <div id="auth-section">
@@ -135,6 +136,49 @@
             </div>
         </section>
 
+        <!-- Communities Page -->
+        <section id="page-communities" class="page">
+            <div class="container page-content">
+                <div class="communities-header">
+                    <div>
+                        <h1>Learning Communities</h1>
+                        <p class="page-intro">Join teacher-led communities to learn, discuss, and grow together</p>
+                    </div>
+                    <div class="communities-actions">
+                        <input type="text" id="community-search" placeholder="Search communities..." class="search-input">
+                        <button id="create-community-btn" class="btn btn-primary" style="display: none;" onclick="App.showCreateCommunityModal()">
+                            + Create Community
+                        </button>
+                    </div>
+                </div>
+
+                <!-- My Communities (shown when logged in) -->
+                <div id="my-communities-section" class="communities-section" style="display: none;">
+                    <h3>My Communities</h3>
+                    <div id="my-communities-list" class="communities-grid">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- All Communities -->
+                <div class="communities-section">
+                    <h3>Explore Communities</h3>
+                    <div id="communities-list" class="communities-grid">
+                        <div class="loading">Loading communities...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Detail Page -->
+        <section id="page-community-detail" class="page">
+            <div class="container page-content">
+                <div id="community-detail">
+                    <div class="loading">Loading community...</div>
+                </div>
+            </div>
+        </section>
+
         <!-- Jobs Page -->
         <section id="page-jobs" class="page">
             <div class="container page-content">
@@ -221,6 +265,78 @@
                         <span>🔐</span> Sign in with Google
                     </a>
                     <p class="login-note">One account across the entire Ayiti Ecosystem</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inbox Page (AI Tutor) -->
+        <section id="page-inbox" class="page">
+            <div class="container page-content">
+                <div class="inbox-container">
+                    <!-- Conversations List -->
+                    <div class="inbox-sidebar">
+                        <div class="inbox-header">
+                            <h2>Messages</h2>
+                            <button class="btn btn-primary btn-small" onclick="App.startNewConversation()">
+                                + New Chat
+                            </button>
+                        </div>
+                        <div id="conversations-list" class="conversations-list">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div class="inbox-chat">
+                        <div id="chat-header" class="chat-header">
+                            <div class="chat-avatar">🤖</div>
+                            <div class="chat-info">
+                                <h3>Pwofesè Lespri</h3>
+                                <span class="chat-subtitle">AI Tutor - Ask me anything!</span>
+                            </div>
+                        </div>
+
+                        <div id="chat-messages" class="chat-messages">
+                            <div class="chat-welcome">
+                                <div class="welcome-avatar">🤖</div>
+                                <h3>Bonjou! Mwen se Pwofesè Lespri</h3>
+                                <p>I'm your AI tutor. Ask me anything about your courses!</p>
+                                <div class="quick-questions">
+                                    <button class="quick-question" onclick="App.askQuestion('How do I start learning Agriculture?')">
+                                        How do I start Agriculture?
+                                    </button>
+                                    <button class="quick-question" onclick="App.askQuestion('What are the certification requirements?')">
+                                        Certification requirements?
+                                    </button>
+                                    <button class="quick-question" onclick="App.askQuestion('Ki jan mwen ka jwenn travay?')">
+                                        Ki jan mwen ka jwenn travay?
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input-area">
+                            <select id="course-context" class="course-select">
+                                <option value="">General Question</option>
+                                <option value="agriculture">Agriculture</option>
+                                <option value="mechanic">Mechanic</option>
+                                <option value="fishing">Fishing</option>
+                                <option value="boat-building">Boat Building</option>
+                                <option value="recycling">Recycling</option>
+                            </select>
+                            <div class="chat-input-wrapper">
+                                <textarea
+                                    id="chat-input"
+                                    placeholder="Type your question..."
+                                    rows="1"
+                                    onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); App.sendMessage(); }"
+                                ></textarea>
+                                <button class="send-btn" onclick="App.sendMessage()" id="send-btn">
+                                    <span>Send</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

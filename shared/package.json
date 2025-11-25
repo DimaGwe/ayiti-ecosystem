@@ -4,6 +4,7 @@
   "description": "Shared utilities for Ayiti Ecosystem",
   "main": "index.js",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "sequelize": "^6.37.0",
     "mysql2": "^3.9.0",
     "dotenv": "^16.4.0",

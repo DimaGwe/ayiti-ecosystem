@@ -11,6 +11,7 @@ const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
 const path = require('path');
+const passport = require('passport');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const { setupAuth } = require('../shared/middleware/auth');
@@ -18,14 +19,19 @@ const sequelize = require('../shared/config/database');
 
 // Import models to ensure they're registered
 const { VpnPlan, VpnSubscription, VpnClient, VpnUsageLog } = require('./models');
+const AdminUser = require('../shared/models/AdminUser');
 
 // Import routes
 const subscriptionRoutes = require('./routes/subscriptions');
 const clientRoutes = require('./routes/clients');
 const adminRoutes = require('./routes/admin');
+const adminAuthRoutes = require('./routes/adminAuth');
 const wireguardRoutes = require('./routes/wireguard');
 
 const app = express();
+
+// Trust proxy for secure cookies behind Nginx
+app.set('trust proxy', 1);
 
 // ==================== MIDDLEWARE ====================
 
@@ -53,16 +59,17 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'ayiti-vpn-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
-    domain: process.env.NODE_ENV === 'production' ? '.ayiti.com' : undefined
+    sameSite: 'lax'
   }
 }));
 
 // Authentication (Google OAuth)
-setupAuth(app);
+setupAuth(app, passport);
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -81,11 +88,10 @@ app.use('/api/plans', subscriptionRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin-auth', adminAuthRoutes);
 app.use('/api/wg', wireguardRoutes);
 
 // ==================== AUTH ROUTES ====================
-
-const passport = require('passport');
 
 // Google OAuth login
 app.get('/auth/google', passport.authenticate('google', {

@@ -5,7 +5,8 @@
 
 const express = require('express');
 const router = express.Router();
-const { isAuthenticated, isAdmin } = require('../../shared/middleware/auth');
+const { isAuthenticated } = require('../../shared/middleware/auth');
+const { isAdminAuthenticated } = require('../../shared/middleware/adminAuth');
 const {
   generateKeyPair,
   getStatus,
@@ -39,7 +40,7 @@ router.post('/generate-keys', isAuthenticated, async (req, res) => {
  * GET /api/wg/status
  * Get WireGuard interface status (admin only)
  */
-router.get('/status', isAuthenticated, isAdmin, async (req, res) => {
+router.get('/status', isAdminAuthenticated, async (req, res) => {
   try {
     const status = getStatus();
     res.json({
@@ -57,7 +58,7 @@ router.get('/status', isAuthenticated, isAdmin, async (req, res) => {
  * POST /api/wg/add-peer (admin only)
  * Manually add a peer to WireGuard
  */
-router.post('/add-peer', isAuthenticated, isAdmin, async (req, res) => {
+router.post('/add-peer', isAdminAuthenticated, async (req, res) => {
   try {
     const { publicKey, ipAddress } = req.body;
 
@@ -83,7 +84,7 @@ router.post('/add-peer', isAuthenticated, isAdmin, async (req, res) => {
  * POST /api/wg/remove-peer (admin only)
  * Manually remove a peer from WireGuard
  */
-router.post('/remove-peer', isAuthenticated, isAdmin, async (req, res) => {
+router.post('/remove-peer', isAdminAuthenticated, async (req, res) => {
   try {
     const { publicKey } = req.body;
 

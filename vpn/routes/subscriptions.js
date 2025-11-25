@@ -117,10 +117,10 @@ router.post('/subscribe', isAuthenticated, async (req, res) => {
 });
 
 /**
- * GET /api/subscription
+ * GET /api/subscription/current
  * Get user's current subscription
  */
-router.get('/', isAuthenticated, async (req, res) => {
+router.get('/current', isAuthenticated, async (req, res) => {
   try {
     const subscription = await VpnSubscription.findOne({
       where: {

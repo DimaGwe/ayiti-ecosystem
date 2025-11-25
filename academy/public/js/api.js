@@ -131,6 +131,167 @@ const API = {
 
     async getPipelineStages() {
         return this.request('/pipeline/stages');
+    },
+
+    // ==================== MESSAGES (AI TUTOR) ====================
+    async getConversations() {
+        return this.request('/messages');
+    },
+
+    async getConversation(conversationId) {
+        return this.request(`/messages/conversation/${conversationId}`);
+    },
+
+    async sendToAITutor(content, courseContext = null, conversationId = null) {
+        return this.request('/messages/ai-tutor', {
+            method: 'POST',
+            body: { content, courseContext, conversationId }
+        });
+    },
+
+    async getUnreadCount() {
+        return this.request('/messages/unread-count');
+    },
+
+    async deleteConversation(conversationId) {
+        return this.request(`/messages/conversation/${conversationId}`, {
+            method: 'DELETE'
+        });
+    },
+
+    // ==================== COMMUNITIES ====================
+    async getCommunities(filters = {}) {
+        const params = new URLSearchParams();
+        if (filters.courseId) params.append('courseId', filters.courseId);
+        if (filters.search) params.append('search', filters.search);
+        if (filters.page) params.append('page', filters.page);
+
+        const query = params.toString() ? `?${params.toString()}` : '';
+        return this.request(`/communities${query}`);
+    },
+
+    async getCommunity(id) {
+        return this.request(`/communities/${id}`);
+    },
+
+    async getCommunityBySlug(slug) {
+        return this.request(`/communities/slug/${slug}`);
+    },
+
+    async getMyCommunities() {
+        return this.request('/communities/my/memberships');
+    },
+
+    async getOwnedCommunities() {
+        return this.request('/communities/my/owned');
+    },
+
+    async createCommunity(data) {
+        return this.request('/communities', {
+            method: 'POST',
+            body: data
+        });
+    },
+
+    async updateCommunity(id, data) {
+        return this.request(`/communities/${id}`, {
+            method: 'PUT',
+            body: data
+        });
+    },
+
+    async joinCommunity(id) {
+        return this.request(`/communities/${id}/join`, {
+            method: 'POST'
+        });
+    },
+
+    async joinCommunityByCode(inviteCode) {
+        return this.request(`/communities/join/${inviteCode}`, {
+            method: 'POST'
+        });
+    },
+
+    async leaveCommunity(id) {
+        return this.request(`/communities/${id}/leave`, {
+            method: 'POST'
+        });
+    },
+
+    async getCommunityMembers(id, status = 'active') {
+        return this.request(`/communities/${id}/members?status=${status}`);
+    },
+
+    async manageCommunityMember(communityId, userId, action, role = null) {
+        return this.request(`/communities/${communityId}/members/${userId}`, {
+            method: 'PUT',
+            body: { action, role }
+        });
+    },
+
+    // ==================== POSTS ====================
+    async getCommunityPosts(communityId, filters = {}) {
+        const params = new URLSearchParams();
+        if (filters.type) params.append('type', filters.type);
+        if (filters.page) params.append('page', filters.page);
+
+        const query = params.toString() ? `?${params.toString()}` : '';
+        return this.request(`/posts/community/${communityId}${query}`);
+    },
+
+    async getPost(postId) {
+        return this.request(`/posts/${postId}`);
+    },
+
+    async createPost(communityId, data) {
+        return this.request(`/posts/community/${communityId}`, {
+            method: 'POST',
+            body: data
+        });
+    },
+
+    async updatePost(postId, data) {
+        return this.request(`/posts/${postId}`, {
+            method: 'PUT',
+            body: data
+        });
+    },
+
+    async deletePost(postId) {
+        return this.request(`/posts/${postId}`, {
+            method: 'DELETE'
+        });
+    },
+
+    async likePost(postId) {
+        return this.request(`/posts/${postId}/like`, {
+            method: 'POST'
+        });
+    },
+
+    async addComment(postId, content, parentId = null) {
+        return this.request(`/posts/${postId}/comments`, {
+            method: 'POST',
+            body: { content, parentId }
+        });
+    },
+
+    async deleteComment(commentId) {
+        return this.request(`/posts/comments/${commentId}`, {
+            method: 'DELETE'
+        });
+    },
+
+    async likeComment(commentId) {
+        return this.request(`/posts/comments/${commentId}/like`, {
+            method: 'POST'
+        });
+    },
+
+    async acceptAnswer(commentId) {
+        return this.request(`/posts/comments/${commentId}/accept`, {
+            method: 'POST'
+        });
     }
 };
 

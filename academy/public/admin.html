@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Haiti Skills Academy</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h1>Academy Admin</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#courses" class="nav-item" data-section="courses">
+                    <span class="nav-icon">📚</span>
+                    <span>Courses</span>
+                </a>
+                <a href="#users" class="nav-item" data-section="users">
+                    <span class="nav-icon">👥</span>
+                    <span>Users</span>
+                </a>
+                <a href="#teachers" class="nav-item" data-section="teachers">
+                    <span class="nav-icon">🎓</span>
+                    <span>Teachers</span>
+                </a>
+                <a href="#certifications" class="nav-item" data-section="certifications">
+                    <span class="nav-icon">📜</span>
+                    <span>Certifications</span>
+                </a>
+                <a href="#companies" class="nav-item" data-section="companies">
+                    <span class="nav-icon">🏢</span>
+                    <span>Companies</span>
+                </a>
+                <a href="#ai-tutor" class="nav-item" data-section="ai-tutor">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI Tutor</span>
+                </a>
+                <a href="#ai-teachers" class="nav-item" data-section="ai-teachers">
+                    <span class="nav-icon">🧠</span>
+                    <span>AI Teachers</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/" class="back-link">← Back to Academy</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-title">
+                    <h2 id="page-title">Dashboard</h2>
+                </div>
+                <div class="header-actions">
+                    <span id="admin-user-name"></span>
+                    <a href="/auth/logout" class="btn btn-secondary btn-small">Logout</a>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="admin-content">
+                <!-- Dashboard Section -->
+                <section id="section-dashboard" class="admin-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-users">-</span>
+                                <span class="stat-label">Total Users</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-courses">-</span>
+                                <span class="stat-label">Active Courses</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-enrollments">-</span>
+                                <span class="stat-label">Enrollments</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📜</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-certifications">-</span>
+                                <span class="stat-label">Certifications</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🏢</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-companies">-</span>
+                                <span class="stat-label">Companies</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h3>Recent Users</h3>
+                            <div id="recent-users" class="list-container">
+                                <div class="loading">Loading...</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Enrollment Status</h3>
+                            <div id="enrollment-status" class="list-container">
+                                <div class="loading">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Courses Section -->
+                <section id="section-courses" class="admin-section">
+                    <div class="section-header">
+                        <h3>Course Management</h3>
+                        <button class="btn btn-primary" onclick="Admin.showCourseModal()">+ Add Course</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Enrolled</th>
+                                    <th>Certified</th>
+                                    <th>Theory %</th>
+                                    <th>Practical Hrs</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="courses-table">
+                                <tr><td colspan="7" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="section-users" class="admin-section">
+                    <div class="section-header">
+                        <h3>User Management</h3>
+                        <div class="filter-group">
+                            <select id="user-role-filter" onchange="Admin.loadUsers()">
+                                <option value="">All Roles</option>
+                                <option value="student">Students</option>
+                                <option value="instructor">Instructors</option>
+                                <option value="employer">Employers</option>
+                                <option value="admin">Admins</option>
+                            </select>
+                            <input type="text" id="user-search" placeholder="Search by name or email..." onkeyup="Admin.debounceSearch()">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Credits</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table">
+                                <tr><td colspan="6" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="users-pagination" class="pagination"></div>
+                </section>
+
+                <!-- Teachers Section -->
+                <section id="section-teachers" class="admin-section">
+                    <div class="section-header">
+                        <h3>Teacher Management</h3>
+                        <button class="btn btn-primary" onclick="Admin.showInviteModal()">+ Invite Teacher</button>
+                    </div>
+
+                    <div class="tabs">
+                        <button class="tab active" data-tab="current-teachers">Current Teachers</button>
+                        <button class="tab" data-tab="pending-invites">Pending Invites</button>
+                        <button class="tab" data-tab="potential-teachers">Potential Teachers</button>
+                    </div>
+
+                    <div id="tab-current-teachers" class="tab-content active">
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Teacher</th>
+                                        <th>Email</th>
+                                        <th>Communities</th>
+                                        <th>Students</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teachers-table">
+                                    <tr><td colspan="6" class="loading">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="tab-pending-invites" class="tab-content">
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Name</th>
+                                        <th>Invited By</th>
+                                        <th>Expires</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invites-table">
+                                    <tr><td colspan="5" class="loading">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="tab-potential-teachers" class="tab-content">
+                        <p class="section-note">These are certified students who could become teachers:</p>
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Email</th>
+                                        <th>Certifications</th>
+                                        <th>Credits</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="potential-teachers-table">
+                                    <tr><td colspan="5" class="loading">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Certifications Section -->
+                <section id="section-certifications" class="admin-section">
+                    <div class="section-header">
+                        <h3>Certification Management</h3>
+                        <div class="filter-group">
+                            <select id="cert-status-filter" onchange="Admin.loadCertifications()">
+                                <option value="">All Status</option>
+                                <option value="valid">Valid</option>
+                                <option value="revoked">Revoked</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Certificate #</th>
+                                    <th>User</th>
+                                    <th>Course</th>
+                                    <th>Grade</th>
+                                    <th>Issued</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="certifications-table">
+                                <tr><td colspan="7" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="certs-pagination" class="pagination"></div>
+                </section>
+
+                <!-- Companies Section -->
+                <section id="section-companies" class="admin-section">
+                    <div class="section-header">
+                        <h3>Company Management</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Type</th>
+                                    <th>Open Jobs</th>
+                                    <th>Graduates Hired</th>
+                                    <th>Verified</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="companies-table">
+                                <tr><td colspan="6" class="loading">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- AI Tutor Section -->
+                <section id="section-ai-tutor" class="admin-section">
+                    <div class="section-header">
+                        <h3>AI Tutor Configuration</h3>
+                        <button class="btn btn-primary" onclick="Admin.testAITutor()">Test AI Tutor</button>
+                    </div>
+
+                    <!-- AI Stats -->
+                    <div class="stats-grid ai-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">💬</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="ai-stat-conversations">-</span>
+                                <span class="stat-label">Total Conversations</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📨</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="ai-stat-messages">-</span>
+                                <span class="stat-label">AI Messages</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="ai-stat-status">-</span>
+                                <span class="stat-label">Status</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-tutor-grid">
+                        <!-- General Settings -->
+                        <div class="dashboard-card">
+                            <h3>General Settings</h3>
+                            <form id="ai-settings-form" onsubmit="Admin.saveAISettings(event)">
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="ai-enabled" name="enabled" checked>
+                                        Enable AI Tutor
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ai-model">Model</label>
+                                    <select id="ai-model" name="model">
+                                        <option value="deepseek-chat">DeepSeek Chat</option>
+                                        <option value="deepseek-coder">DeepSeek Coder</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ai-temperature">Temperature: <span id="temp-value">0.7</span></label>
+                                    <input type="range" id="ai-temperature" name="temperature" min="0" max="1" step="0.1" value="0.7" oninput="document.getElementById('temp-value').textContent = this.value">
+                                    <p class="form-hint">Lower = more focused, Higher = more creative</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ai-max-tokens">Max Response Tokens</label>
+                                    <input type="number" id="ai-max-tokens" name="maxTokens" value="1000" min="100" max="4000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ai-personality">Personality Style</label>
+                                    <select id="ai-personality" name="personality">
+                                        <option value="helpful">Helpful & Supportive</option>
+                                        <option value="professional">Professional</option>
+                                        <option value="friendly">Friendly & Casual</option>
+                                        <option value="strict">Strict Teacher</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ai-response-style">Response Style</label>
+                                    <select id="ai-response-style" name="responseStyle">
+                                        <option value="conversational">Conversational</option>
+                                        <option value="detailed">Detailed Explanations</option>
+                                        <option value="concise">Concise & Brief</option>
+                                        <option value="socratic">Socratic (Questions)</option>
+                                    </select>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- System Prompt -->
+                        <div class="dashboard-card">
+                            <h3>System Instructions</h3>
+                            <form id="ai-prompt-form" onsubmit="Admin.saveAIPrompt(event)">
+                                <div class="form-group">
+                                    <label for="ai-system-prompt">System Prompt</label>
+                                    <textarea id="ai-system-prompt" name="systemPrompt" rows="12" placeholder="Enter the main instructions for the AI Tutor..."></textarea>
+                                    <p class="form-hint">This defines the AI's behavior and role</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ai-welcome-message">Welcome Message</label>
+                                    <textarea id="ai-welcome-message" name="welcomeMessage" rows="2" placeholder="Hello! I'm your AI Tutor..."></textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-secondary" onclick="Admin.resetAIPrompt()">Reset to Default</button>
+                                    <button type="submit" class="btn btn-primary">Save Instructions</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Course-Specific Instructions -->
+                    <div class="dashboard-card full-width">
+                        <h3>Course-Specific Instructions</h3>
+                        <p class="section-note">Add special instructions for each course to customize the AI's knowledge</p>
+                        <div class="course-instructions-grid" id="course-instructions-container">
+                            <div class="loading">Loading courses...</div>
+                        </div>
+                    </div>
+
+                    <!-- Test Console -->
+                    <div class="dashboard-card full-width" id="ai-test-console" style="display: none;">
+                        <h3>AI Test Console</h3>
+                        <div class="ai-test-area">
+                            <div id="ai-test-messages" class="ai-test-messages"></div>
+                            <div class="ai-test-input">
+                                <input type="text" id="ai-test-input" placeholder="Type a test message..." onkeypress="if(event.key === 'Enter') Admin.sendTestMessage()">
+                                <button class="btn btn-primary" onclick="Admin.sendTestMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- AI Teachers Section -->
+                <section id="section-ai-teachers" class="admin-section">
+                    <div class="section-header">
+                        <h3>AI Community Teachers</h3>
+                        <button class="btn btn-primary" onclick="Admin.showCreateAITeacherModal()">+ Create AI Teacher</button>
+                    </div>
+
+                    <p class="section-note">AI Teachers own and manage their own communities, teaching from admin-defined curriculum.</p>
+
+                    <!-- AI Teachers Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🧠</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="ai-teachers-count">0</span>
+                                <span class="stat-label">AI Teachers</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💬</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="ai-teachers-responses">0</span>
+                                <span class="stat-label">Total Responses</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="ai-teachers-posts">0</span>
+                                <span class="stat-label">AI Posts</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Teachers List -->
+                    <div id="ai-teachers-list" class="ai-teachers-grid">
+                        <div class="loading">Loading AI Teachers...</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay" onclick="Admin.closeModal()"></div>
+
+    <!-- Course Modal -->
+    <div id="course-modal" class="modal">
+        <div class="modal-header">
+            <h3 id="course-modal-title">Add Course</h3>
+            <button class="modal-close" onclick="Admin.closeModal()">&times;</button>
+        </div>
+        <form id="course-form" onsubmit="Admin.saveCourse(event)">
+            <div class="form-group">
+                <label for="course-name">Course Name *</label>
+                <input type="text" id="course-name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="course-description">Description</label>
+                <textarea id="course-description" name="description" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="course-theory">Theory Completion %</label>
+                    <input type="number" id="course-theory" name="theoryCompletionRequired" value="100" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="course-practical">Practical Hours</label>
+                    <input type="number" id="course-practical" name="practicalHoursRequired" value="40" min="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="course-physical" name="physicalTestRequired" checked>
+                    Physical Test Required
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="course-featured" name="isFeatured">
+                    Featured Course
+                </label>
+            </div>
+            <input type="hidden" id="course-id" name="id">
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="Admin.closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Course</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Module Modal -->
+    <div id="module-modal" class="modal modal-large">
+        <div class="modal-header">
+            <h3 id="module-modal-title">Add Module</h3>
+            <button class="modal-close" onclick="Admin.closeModal()">&times;</button>
+        </div>
+        <form id="module-form" onsubmit="Admin.saveModule(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="module-name">Module Name *</label>
+                    <input type="text" id="module-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="module-order">Order</label>
+                    <input type="number" id="module-order" name="order" value="0" min="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="module-description">Description</label>
+                <textarea id="module-description" name="description" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="module-video">Video URL</label>
+                <input type="url" id="module-video" name="videoUrl" placeholder="https://youtube.com/...">
+            </div>
+            <div class="form-group">
+                <label for="module-content">Content (Markdown)</label>
+                <textarea id="module-content" name="content" rows="6" placeholder="Module content in markdown..."></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="module-passing">Passing Score %</label>
+                    <input type="number" id="module-passing" name="passingScore" value="70" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="module-time">Estimated Minutes</label>
+                    <input type="number" id="module-time" name="estimatedMinutes" value="30" min="0">
+                </div>
+            </div>
+            <input type="hidden" id="module-id" name="id">
+            <input type="hidden" id="module-course-id" name="courseId">
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="Admin.closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Module</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- User Edit Modal -->
+    <div id="user-modal" class="modal">
+        <div class="modal-header">
+            <h3>Edit User</h3>
+            <button class="modal-close" onclick="Admin.closeModal()">&times;</button>
+        </div>
+        <form id="user-form" onsubmit="Admin.saveUser(event)">
+            <div class="user-info-display">
+                <img id="user-avatar" src="" alt="" class="user-avatar-large">
+                <div>
+                    <h4 id="user-display-name"></h4>
+                    <p id="user-display-email"></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="user-role">Role</label>
+                <select id="user-role" name="role">
+                    <option value="student">Student</option>
+                    <option value="instructor">Instructor</option>
+                    <option value="employer">Employer</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="user-credits">Credits</label>
+                <input type="number" id="user-credits" name="credits" min="0">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="user-active" name="isActive">
+                    Account Active
+                </label>
+            </div>
+            <input type="hidden" id="user-id" name="id">
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="Admin.closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Teacher Invite Modal -->
+    <div id="invite-modal" class="modal">
+        <div class="modal-header">
+            <h3>Invite Teacher</h3>
+            <button class="modal-close" onclick="Admin.closeModal()">&times;</button>
+        </div>
+        <form id="invite-form" onsubmit="Admin.sendInvite(event)">
+            <div class="form-group">
+                <label for="invite-email">Email Address *</label>
+                <input type="email" id="invite-email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="invite-name">Name</label>
+                <input type="text" id="invite-name" name="name">
+            </div>
+            <div class="form-group">
+                <label for="invite-message">Personal Message</label>
+                <textarea id="invite-message" name="message" rows="3" placeholder="Optional message to include in the invite..."></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="Admin.closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Send Invite</button>
+            </div>
+        </form>
+        <div id="invite-result" class="invite-result" style="display: none;">
+            <h4>Invite Link Created!</h4>
+            <p>Share this link with the teacher:</p>
+            <div class="invite-link-box">
+                <input type="text" id="invite-link" readonly>
+                <button class="btn btn-small" onclick="Admin.copyInviteLink()">Copy</button>
+            </div>
+            <p class="note">Link expires in 7 days</p>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

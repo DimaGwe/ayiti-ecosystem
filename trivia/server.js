@@ -10,6 +10,7 @@ const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
 const path = require('path');
+const passport = require('passport');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const { setupAuth } = require('../shared/middleware/auth');
@@ -24,6 +25,9 @@ const leaderboardRoutes = require('./routes/leaderboard');
 
 const app = express();
 
+// Trust proxy for secure cookies behind Nginx
+app.set('trust proxy', 1);
+
 // ==================== MIDDLEWARE ====================
 
 // CORS - Allow ecosystem subdomains
@@ -36,7 +40,11 @@ app.use(cors({
     'https://ayiti.com',
     'https://trivia.ayiti.com',
     'https://academy.ayiti.com',
-    'https://solar.ayiti.com'
+    'https://solar.ayiti.com',
+    'https://poukwapa.org',
+    'https://trivia.poukwapa.org',
+    'https://vpn.poukwapa.org',
+    'https://academy.poukwapa.org'
   ],
   credentials: true
 }));
@@ -47,19 +55,24 @@ app.use(express.urlencoded({ extended: true }));
 
 // Session configuration
 app.use(session({
+  name: 'trivia.sid',  // Unique session name to avoid conflicts with other apps
   secret: process.env.SESSION_SECRET || 'ayiti-trivia-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
-    domain: process.env.NODE_ENV === 'production' ? '.ayiti.com' : undefined
+    sameSite: 'lax'
   }
 }));
 
-// Authentication (Google OAuth)
-setupAuth(app);
+// Authentication (Google OAuth) - use trivia-specific callback
+const triviaCallbackURL = process.env.NODE_ENV === 'production'
+  ? 'https://trivia.poukwapa.org/auth/google/callback'
+  : 'http://localhost:3002/auth/google/callback';
+setupAuth(app, passport, { callbackURL: triviaCallbackURL });
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -79,8 +92,6 @@ app.use('/api/leaderboard', leaderboardRoutes);
 
 // ==================== AUTH ROUTES ====================
 
-const passport = require('passport');
-
 // Google OAuth login
 app.get('/auth/google', passport.authenticate('google', {
   scope: ['profile', 'email']
@@ -92,6 +103,10 @@ app.get('/auth/google/callback',
     failureRedirect: '/?error=auth_failed'
   }),
   (req, res) => {
+    console.log('=== OAuth Callback Success ===');
+    console.log('User:', req.user ? req.user.email : 'null');
+    console.log('Session ID:', req.sessionID);
+    console.log('Session:', JSON.stringify(req.session, null, 2));
     res.redirect('/');
   }
 );
@@ -108,6 +123,12 @@ app.get('/auth/logout', (req, res) => {
 
 // Get current user
 app.get('/api/user', (req, res) => {
+  console.log('=== /api/user called ===');
+  console.log('Session ID:', req.sessionID);
+  console.log('Session passport:', req.session?.passport);
+  console.log('isAuthenticated:', req.isAuthenticated ? req.isAuthenticated() : 'N/A');
+  console.log('User:', req.user ? req.user.email : 'null');
+
   if (req.user) {
     res.json({
       success: true,

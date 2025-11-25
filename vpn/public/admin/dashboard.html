@@ -76,15 +76,50 @@
       </div>
 
       <!-- Tabs -->
-      <div class="flex gap-md mb-lg">
-        <button class="btn btn-primary" id="tabClients" onclick="showTab('clients')">Clients</button>
+      <div class="flex gap-md mb-lg" style="flex-wrap: wrap;">
+        <button class="btn btn-primary" id="tabUsers" onclick="showTab('users')">Users</button>
+        <button class="btn btn-secondary" id="tabClients" onclick="showTab('clients')">Clients</button>
         <button class="btn btn-secondary" id="tabSubscriptions" onclick="showTab('subscriptions')">Subscriptions</button>
         <button class="btn btn-secondary" id="tabUsage" onclick="showTab('usage')">Usage Analytics</button>
         <button class="btn btn-secondary" id="tabPlans" onclick="showTab('plans')">Plans</button>
       </div>
 
+      <!-- Users Tab -->
+      <div id="usersTab" class="card">
+        <div class="card-header">
+          <h2 class="card-title">Registered Users</h2>
+          <div class="flex gap-sm">
+            <input type="text" id="userSearch" class="form-input" placeholder="Search users..." style="width: 200px;" onkeyup="if(event.key==='Enter')loadUsers()">
+            <button class="btn btn-secondary" onclick="loadUsers()">Search</button>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <th style="text-align: left; padding: 1rem;">User</th>
+                <th style="text-align: left; padding: 1rem;">Email</th>
+                <th style="text-align: left; padding: 1rem;">Credits</th>
+                <th style="text-align: left; padding: 1rem;">Subscription</th>
+                <th style="text-align: left; padding: 1rem;">Devices</th>
+                <th style="text-align: left; padding: 1rem;">Joined</th>
+                <th style="text-align: left; padding: 1rem;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr>
+                <td colspan="7" class="text-center" style="padding: 2rem; color: var(--text-muted);">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="usersPagination" class="flex-between mt-md"></div>
+      </div>
+
       <!-- Clients Tab -->
-      <div id="clientsTab" class="card">
+      <div id="clientsTab" class="card hidden">
         <div class="card-header">
           <h2 class="card-title">VPN Clients</h2>
           <div class="flex gap-sm">
@@ -223,38 +258,44 @@
   <script src="/js/i18n.js"></script>
   <script src="/js/app.js"></script>
   <script>
-    let currentUser = null;
+    let adminUser = null;
 
     // Initialize admin dashboard
     async function initAdmin() {
       await checkAuth();
     }
 
-    // Check authentication and admin role
+    // Check admin authentication
     async function checkAuth() {
       try {
-        const response = await fetch('/api/user');
+        const response = await fetch('/api/admin-auth/check');
         const data = await response.json();
 
-        if (data.success && data.user) {
-          currentUser = data.user;
-          updateUserArea(data.user);
-
-          if (data.user.role === 'admin') {
-            document.getElementById('adminContent').classList.remove('hidden');
-            loadStats();
-            loadClients();
-            loadWgStatus();
-          } else {
-            document.getElementById('accessDenied').classList.remove('hidden');
-          }
+        if (data.authenticated && data.admin) {
+          adminUser = data.admin;
+          // Update user area to show admin name
+          document.getElementById('userArea').innerHTML = `
+            <span style="color: var(--text-secondary); margin-right: 1rem;">${adminUser.name || adminUser.username}</span>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+          `;
+          document.getElementById('adminContent').classList.remove('hidden');
+          loadStats();
+          loadUsers();
+          loadWgStatus();
         } else {
-          document.getElementById('accessDenied').classList.remove('hidden');
+          // Redirect to admin login
+          window.location.href = '/admin/login.html';
         }
       } catch (error) {
         console.error('Auth check failed:', error);
-        document.getElementById('accessDenied').classList.remove('hidden');
+        window.location.href = '/admin/login.html';
       }
+    }
+
+    // Logout
+    async function logout() {
+      await fetch('/api/admin-auth/logout', { method: 'POST' });
+      window.location.href = '/admin/login.html';
     }
 
     // Load stats
@@ -492,15 +533,99 @@
       }
     }
 
+    // Load users
+    async function loadUsers(page = 1) {
+      const search = document.getElementById('userSearch').value;
+      const params = new URLSearchParams({ page, limit: 10 });
+      if (search) params.set('search', search);
+
+      try {
+        const response = await fetch(`/api/admin/users?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const tbody = document.getElementById('usersTableBody');
+          if (data.users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding: 2rem; color: var(--text-muted);">No users found</td></tr>';
+          } else {
+            tbody.innerHTML = data.users.map(user => `
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    ${user.avatar ? `<img src="${user.avatar}" style="width: 32px; height: 32px; border-radius: 50%;">` : ''}
+                    <span>${user.name || '-'}</span>
+                  </div>
+                </td>
+                <td style="padding: 1rem;">${user.email}</td>
+                <td style="padding: 1rem;">${user.credits || 0}</td>
+                <td style="padding: 1rem;">
+                  ${user.activeSubscription
+                    ? `<span class="status-badge enabled">${user.activeSubscription.plan}</span>`
+                    : '<span style="color: var(--text-muted);">None</span>'}
+                </td>
+                <td style="padding: 1rem;">${user.clientCount}</td>
+                <td style="padding: 1rem;">${new Date(user.createdAt).toLocaleDateString()}</td>
+                <td style="padding: 1rem;">
+                  <button class="btn btn-sm" style="background: var(--status-error); color: white;" onclick="deleteUser(${user.id}, '${user.email.replace(/'/g, "\\'")}')">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            `).join('');
+          }
+
+          // Pagination
+          const pagination = document.getElementById('usersPagination');
+          pagination.innerHTML = `
+            <span style="color: var(--text-muted);">Showing ${data.users.length} of ${data.pagination.total}</span>
+            <div class="flex gap-sm">
+              <button class="btn btn-sm btn-secondary" ${data.pagination.page <= 1 ? 'disabled' : ''} onclick="loadUsers(${data.pagination.page - 1})">Prev</button>
+              <span style="padding: 0.5rem;">Page ${data.pagination.page} of ${data.pagination.pages || 1}</span>
+              <button class="btn btn-sm btn-secondary" ${data.pagination.page >= data.pagination.pages ? 'disabled' : ''} onclick="loadUsers(${data.pagination.page + 1})">Next</button>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Failed to load users:', error);
+      }
+    }
+
+    // Delete user
+    async function deleteUser(userId, email) {
+      if (!confirm(`Are you sure you want to delete user "${email}"?\n\nThis will also delete:\n- All their VPN subscriptions\n- All their VPN devices/clients\n- All usage history\n\nThis action cannot be undone!`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/admin/users/${userId}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          alert(`User deleted successfully!\n\nDeleted:\n- ${data.deleted.subscriptions} subscription(s)\n- ${data.deleted.clients} client(s)\n- ${data.deleted.usageLogs} usage log(s)`);
+          loadUsers();
+          loadStats();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Failed to delete user:', error);
+        alert('Failed to delete user');
+      }
+    }
+
     // Tab navigation
     function showTab(tab) {
       // Hide all tabs
+      document.getElementById('usersTab').classList.add('hidden');
       document.getElementById('clientsTab').classList.add('hidden');
       document.getElementById('subscriptionsTab').classList.add('hidden');
       document.getElementById('usageTab').classList.add('hidden');
       document.getElementById('plansTab').classList.add('hidden');
 
       // Reset all buttons
+      document.getElementById('tabUsers').className = 'btn btn-secondary';
       document.getElementById('tabClients').className = 'btn btn-secondary';
       document.getElementById('tabSubscriptions').className = 'btn btn-secondary';
       document.getElementById('tabUsage').className = 'btn btn-secondary';
@@ -511,6 +636,8 @@
       document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).className = 'btn btn-primary';
 
       // Load data for tab
+      if (tab === 'users') loadUsers();
+      if (tab === 'clients') loadClients();
       if (tab === 'subscriptions') loadSubscriptions();
       if (tab === 'usage') loadUsage();
       if (tab === 'plans') loadPlans();

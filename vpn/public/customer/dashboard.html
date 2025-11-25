@@ -215,7 +215,7 @@
     // Load subscription details
     async function loadSubscription() {
       try {
-        const response = await fetch('/api/subscription');
+        const response = await fetch('/api/subscription/current');
         const data = await response.json();
 
         const statusEl = document.getElementById('subscriptionStatus');

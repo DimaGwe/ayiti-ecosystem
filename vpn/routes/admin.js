@@ -6,13 +6,14 @@
 const express = require('express');
 const router = express.Router();
 const { Op } = require('sequelize');
-const { VpnClient, VpnSubscription, VpnPlan, VpnUsageLog, User } = require('../models');
-const { isAuthenticated, isAdmin } = require('../../shared/middleware/auth');
+const { VpnClient, VpnSubscription, VpnPlan, VpnUsageLog } = require('../models');
+const User = require('../../shared/models/User');
+const { isAdminAuthenticated, hasPermission } = require('../../shared/middleware/adminAuth');
 const { getStatus, formatBytes } = require('../utils/wireguard');
 
-// All admin routes require authentication and admin role
-router.use(isAuthenticated);
-router.use(isAdmin);
+// All admin routes require admin authentication
+router.use(isAdminAuthenticated);
+router.use(hasPermission('vpn'));
 
 /**
  * GET /api/admin/stats
@@ -364,6 +365,119 @@ router.put('/plans/:id', async (req, res) => {
   } catch (error) {
     console.error('Error updating plan:', error);
     res.status(500).json({ success: false, error: 'Failed to update plan' });
+  }
+});
+
+/**
+ * GET /api/admin/users
+ * List all registered users (regardless of subscription status)
+ */
+router.get('/users', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, search } = req.query;
+    const offset = (page - 1) * limit;
+
+    const where = {};
+    if (search) {
+      where[Op.or] = [
+        { name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } }
+      ];
+    }
+
+    const users = await User.findAndCountAll({
+      where,
+      attributes: ['id', 'googleId', 'name', 'email', 'avatar', 'credits', 'role', 'createdAt'],
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    // Get subscription and client counts for each user
+    const usersWithStats = await Promise.all(users.rows.map(async (user) => {
+      const subscriptionCount = await VpnSubscription.count({ where: { userId: user.id } });
+      const activeSubscription = await VpnSubscription.findOne({
+        where: { userId: user.id, status: 'active' },
+        include: [{ model: VpnPlan, as: 'plan' }]
+      });
+      const clientCount = await VpnClient.count({ where: { userId: user.id } });
+
+      return {
+        id: user.id,
+        googleId: user.googleId,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        credits: user.credits,
+        role: user.role,
+        createdAt: user.createdAt,
+        subscriptionCount,
+        activeSubscription: activeSubscription ? {
+          plan: activeSubscription.plan?.name,
+          expiresAt: activeSubscription.expiresAt
+        } : null,
+        clientCount
+      };
+    }));
+
+    res.json({
+      success: true,
+      users: usersWithStats,
+      pagination: {
+        total: users.count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(users.count / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch users' });
+  }
+});
+
+/**
+ * DELETE /api/admin/users/:id
+ * Delete a user and all their related data (cascade delete)
+ */
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    // Get user's clients for usage log deletion
+    const clients = await VpnClient.findAll({ where: { userId }, attributes: ['id'] });
+    const clientIds = clients.map(c => c.id);
+
+    // Delete in order: usage logs -> clients -> subscriptions -> user
+    let deletedUsageLogs = 0;
+    if (clientIds.length > 0) {
+      deletedUsageLogs = await VpnUsageLog.destroy({ where: { clientId: { [Op.in]: clientIds } } });
+    }
+
+    const deletedClients = await VpnClient.destroy({ where: { userId } });
+    const deletedSubscriptions = await VpnSubscription.destroy({ where: { userId } });
+
+    // Delete the user
+    await user.destroy();
+
+    res.json({
+      success: true,
+      message: 'User and all related data deleted',
+      deleted: {
+        user: user.email,
+        subscriptions: deletedSubscriptions,
+        clients: deletedClients,
+        usageLogs: deletedUsageLogs
+      }
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete user' });
   }
 });
 

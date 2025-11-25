@@ -3,15 +3,31 @@
  * Google OAuth shared across subdomains
  */
 
-const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 
-const setupAuth = (app) => {
+const setupAuth = (app, passport, options = {}) => {
+  // If passport not passed, require it (for backwards compatibility)
+  if (!passport) {
+    passport = require('passport');
+  }
+
+  // Allow custom callback URL per app, or use env var, or default to relative path
+  const callbackURL = options.callbackURL || process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback';
+
+  // Check for required env vars
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    console.error('WARNING: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set - Google OAuth will not work');
+    console.error('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'SET' : 'NOT SET');
+    console.error('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'SET' : 'NOT SET');
+  }
+
+  console.log('Setting up Google OAuth with callback:', callbackURL);
+
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback'
+    callbackURL: callbackURL
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       let user = await User.findOne({ where: { googleId: profile.id } });
