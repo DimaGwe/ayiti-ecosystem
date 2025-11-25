@@ -177,6 +177,9 @@ const App = {
             case 'community-detail':
                 await this.loadCommunityDetail(param);
                 break;
+            case 'learn':
+                await this.loadLearnPage(param);
+                break;
         }
     },
 
@@ -475,12 +478,17 @@ const App = {
             const response = await API.getEnrollments();
             if (response.success && response.enrollments.length > 0) {
                 container.innerHTML = response.enrollments.map(e => `
-                    <div style="padding: 15px 0; border-bottom: 1px solid var(--border);">
+                    <div class="enrollment-card" style="padding: 15px 0; border-bottom: 1px solid var(--border);">
                         <strong>${e.course?.name || e.courseId}</strong>
                         <div class="progress-bar" style="margin: 10px 0;">
                             <div class="progress-fill" style="width: ${e.progress || 0}%"></div>
                         </div>
-                        <span style="font-size: 0.85rem; color: var(--gray);">${e.progress || 0}% complete</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.85rem; color: var(--gray);">${e.progress || 0}% complete</span>
+                            <button class="btn btn-primary btn-small" onclick="App.startLearning(${e.id})">
+                                ${e.progress > 0 ? 'Continue Learning' : 'Start Learning'}
+                            </button>
+                        </div>
                     </div>
                 `).join('');
             } else {
@@ -1768,6 +1776,268 @@ const App = {
     showCreateCommunityModal() {
         // For now, show a simple alert. Full modal to be implemented
         alert('Community creation coming soon! Use the Admin dashboard to create communities.');
+    },
+
+    // ==================== LEARNING PAGE ====================
+    currentEnrollment: null,
+    currentModule: null,
+    quizAnswers: {},
+
+    async loadLearnPage(enrollmentId) {
+        if (!this.user) {
+            this.navigateTo('login');
+            return;
+        }
+
+        try {
+            const response = await API.getEnrollment(enrollmentId);
+            if (!response.success || !response.enrollment) {
+                alert('Enrollment not found');
+                this.navigateTo('dashboard');
+                return;
+            }
+
+            this.currentEnrollment = response.enrollment;
+            const course = this.currentEnrollment.course;
+            const modules = course.modules || [];
+            const completedIds = this.currentEnrollment.modulesCompleted || [];
+
+            // Update course name
+            document.getElementById('learn-course-name').textContent = course.name;
+
+            // Render modules list
+            const modulesList = document.getElementById('learn-modules-list');
+            if (modules.length > 0) {
+                modulesList.innerHTML = modules.map(m => {
+                    const isCompleted = completedIds.includes(m.id);
+                    return `
+                        <div class="module-item ${isCompleted ? 'completed' : ''}"
+                             data-module-id="${m.id}"
+                             onclick="App.loadModule(${m.id})">
+                            <span class="module-order">Module ${m.order}</span>
+                            ${m.name}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                modulesList.innerHTML = '<p style="color: var(--gray);">No modules available</p>';
+            }
+
+            // Update progress
+            const progress = modules.length > 0 ? Math.round((completedIds.length / modules.length) * 100) : 0;
+            document.getElementById('learn-progress-fill').style.width = `${progress}%`;
+            document.getElementById('learn-progress-text').textContent = `${progress}%`;
+
+            // Show welcome or load first uncompleted module
+            const firstUncompleted = modules.find(m => !completedIds.includes(m.id));
+            if (firstUncompleted) {
+                this.loadModule(firstUncompleted.id);
+            } else if (modules.length > 0) {
+                this.loadModule(modules[0].id);
+            }
+
+        } catch (error) {
+            console.error('Failed to load learning page:', error);
+            alert('Failed to load course');
+            this.navigateTo('dashboard');
+        }
+    },
+
+    async loadModule(moduleId) {
+        const course = this.currentEnrollment.course;
+        const module = course.modules.find(m => m.id === moduleId);
+
+        if (!module) {
+            console.error('Module not found');
+            return;
+        }
+
+        this.currentModule = module;
+        this.quizAnswers = {};
+
+        // Update sidebar active state
+        document.querySelectorAll('.module-item').forEach(el => {
+            el.classList.toggle('active', parseInt(el.dataset.moduleId) === moduleId);
+        });
+
+        const completedIds = this.currentEnrollment.modulesCompleted || [];
+        const isCompleted = completedIds.includes(moduleId);
+        const quizScores = this.currentEnrollment.quizScores || {};
+        const moduleScore = quizScores[moduleId];
+
+        // Parse markdown-like content
+        const contentHtml = this.parseContent(module.content || 'No content available');
+
+        // Render module content
+        const container = document.getElementById('learn-module-content');
+        container.innerHTML = `
+            <div class="module-header">
+                <h2>${module.name}</h2>
+                <div class="module-meta">
+                    <span>📚 Module ${module.order}</span>
+                    <span>⏱️ ${module.estimatedMinutes || 30} minutes</span>
+                    ${isCompleted ? '<span style="color: #28a745;">✓ Completed</span>' : ''}
+                </div>
+            </div>
+            <div class="module-body">
+                ${contentHtml}
+            </div>
+            ${module.quizQuestions && module.quizQuestions.length > 0 ? this.renderQuiz(module, moduleScore) : ''}
+        `;
+    },
+
+    parseContent(content) {
+        // Simple markdown-like parser
+        return content
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+            .replace(/\\n/g, '<br>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/^(.+)$/gm, '<p>$1</p>')
+            .replace(/<p><h/g, '<h')
+            .replace(/<\/h(\d)><\/p>/g, '</h$1>')
+            .replace(/<p><ul>/g, '<ul>')
+            .replace(/<\/ul><\/p>/g, '</ul>')
+            .replace(/<p><\/p>/g, '');
+    },
+
+    renderQuiz(module, previousScore) {
+        const questions = module.quizQuestions || [];
+        if (questions.length === 0) return '';
+
+        return `
+            <div class="quiz-section">
+                <h3>📝 Quiz - Test Your Knowledge</h3>
+                ${previousScore ? `
+                    <div class="quiz-result ${previousScore.score >= 70 ? 'passed' : 'failed'}">
+                        <h4>Previous Score: ${previousScore.score}%</h4>
+                        <p>${previousScore.score >= 70 ? 'You passed! Feel free to review or retake.' : 'Keep learning and try again!'}</p>
+                    </div>
+                ` : ''}
+                <div id="quiz-questions">
+                    ${questions.map((q, idx) => `
+                        <div class="quiz-question" data-question="${q.id}">
+                            <p>${idx + 1}. ${q.question}</p>
+                            <div class="quiz-options">
+                                ${q.options.map((opt, optIdx) => `
+                                    <label class="quiz-option" onclick="App.selectAnswer(${q.id}, ${optIdx})">
+                                        <input type="radio" name="q_${q.id}" value="${optIdx}">
+                                        ${opt}
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="quiz-actions">
+                    <button class="btn btn-primary" onclick="App.submitQuiz()">Submit Quiz</button>
+                </div>
+                <div id="quiz-result"></div>
+            </div>
+        `;
+    },
+
+    selectAnswer(questionId, optionIndex) {
+        this.quizAnswers[questionId] = optionIndex;
+
+        // Update visual selection
+        document.querySelectorAll(`.quiz-question[data-question="${questionId}"] .quiz-option`).forEach((el, idx) => {
+            el.classList.toggle('selected', idx === optionIndex);
+        });
+    },
+
+    async submitQuiz() {
+        const questions = this.currentModule.quizQuestions || [];
+
+        // Check if all questions answered
+        if (Object.keys(this.quizAnswers).length < questions.length) {
+            alert('Please answer all questions before submitting.');
+            return;
+        }
+
+        // Calculate score
+        let correct = 0;
+        questions.forEach(q => {
+            const selectedAnswer = this.quizAnswers[q.id];
+            if (selectedAnswer === q.correctIndex) {
+                correct++;
+            }
+        });
+
+        const score = Math.round((correct / questions.length) * 100);
+        const passed = score >= 70;
+
+        // Show correct/incorrect on options
+        questions.forEach(q => {
+            const selectedAnswer = this.quizAnswers[q.id];
+            const options = document.querySelectorAll(`.quiz-question[data-question="${q.id}"] .quiz-option`);
+            options.forEach((el, idx) => {
+                el.classList.remove('selected');
+                if (idx === q.correctIndex) {
+                    el.classList.add('correct');
+                } else if (idx === selectedAnswer && selectedAnswer !== q.correctIndex) {
+                    el.classList.add('incorrect');
+                }
+            });
+        });
+
+        // Show result
+        const resultContainer = document.getElementById('quiz-result');
+        resultContainer.innerHTML = `
+            <div class="quiz-result ${passed ? 'passed' : 'failed'}">
+                <h4>${passed ? '🎉 Congratulations!' : '📚 Keep Learning!'}</h4>
+                <p>You scored ${score}% (${correct}/${questions.length} correct)</p>
+                <p>${passed ? 'Module completed! Move on to the next one.' : 'You need 70% to pass. Review the content and try again.'}</p>
+            </div>
+        `;
+
+        // Submit to server
+        try {
+            const response = await API.completeModule(
+                this.currentEnrollment.id,
+                this.currentModule.id,
+                score,
+                this.quizAnswers
+            );
+
+            if (response.success) {
+                // Update local enrollment data
+                if (!this.currentEnrollment.modulesCompleted) {
+                    this.currentEnrollment.modulesCompleted = [];
+                }
+                if (!this.currentEnrollment.modulesCompleted.includes(this.currentModule.id)) {
+                    this.currentEnrollment.modulesCompleted.push(this.currentModule.id);
+                }
+
+                // Update sidebar
+                const moduleEl = document.querySelector(`.module-item[data-module-id="${this.currentModule.id}"]`);
+                if (moduleEl && passed) {
+                    moduleEl.classList.add('completed');
+                }
+
+                // Update progress
+                const modules = this.currentEnrollment.course.modules || [];
+                const completedIds = this.currentEnrollment.modulesCompleted;
+                const progress = modules.length > 0 ? Math.round((completedIds.length / modules.length) * 100) : 0;
+                document.getElementById('learn-progress-fill').style.width = `${progress}%`;
+                document.getElementById('learn-progress-text').textContent = `${progress}%`;
+
+                // Show credits earned
+                if (response.creditsAwarded > 0) {
+                    resultContainer.innerHTML += `<p style="margin-top: 10px; color: var(--primary);">+${response.creditsAwarded} credits earned!</p>`;
+                }
+            }
+        } catch (error) {
+            console.error('Failed to save quiz result:', error);
+        }
+    },
+
+    startLearning(enrollmentId) {
+        window.location.hash = `learn/${enrollmentId}`;
     }
 };
 
